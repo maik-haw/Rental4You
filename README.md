@@ -82,9 +82,64 @@ PWEB Project 2022/2023 - Web Application for managing car rentals.
 - [ ] Number of monthly bookings (last 12 months)
 - [ ] Number of new customers per month (last 12 months)
 
-## User Types (Roles)
-- Anonymous
-- Customer
-- Employee
-- Manager
-- Administrator
+## Models (Database Tables)
+
+**User**
+- Id
+- UserName (Login)
+- Name
+- RoleId
+- CompanyId
+
+**Role**
+- Id
+- Name (Customer, Employee, Manager, Admin)
+
+**Company**
+- Id
+- Name
+- Active
+- Rating
+
+**Vehicle**
+- Id
+- CategoryId
+- CompanyId
+- Kilometres
+- Active
+
+**VehicleCategory**
+- Id
+- Name
+- List<Vehicle>
+
+**Reservation**
+- Id
+- VehicleId
+- CustomerId
+- CreatedDate
+- Status (open, confirmed, rejected)
+- PickupId
+- DeliveryId
+
+**Pickup**
+- Id
+- EmployeeId
+- PickupDate
+- Kilometres
+- Damage
+- Remarks
+
+**Delivery**
+- Id
+- EmployeeId
+- DeliveryDate
+- Kilometres
+- Damage
+- List<Photo>
+- Remarks
+
+**DeliveryPhoto**
+- Id
+- FilePath
+- DeliveryId
