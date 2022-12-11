@@ -103,10 +103,12 @@ PWEB Project 2022/2023 - Web Application for managing car rentals.
 
 **Vehicle**
 - Id
-- CategoryId
+- VehicleCategoryId
 - CompanyId
 - Kilometres
 - Active
+- Location
+- Cost
 
 **VehicleCategory**
 - Id
