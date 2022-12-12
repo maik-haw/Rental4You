@@ -6,5 +6,7 @@
         public string? Name { get; set; }
         public bool IsActive { get; set; }
         public double Rating { get; set; }
+        // Foreign Keys:
+        public ICollection<Vehicle>? Vehicles { get; set; }
     }
 }

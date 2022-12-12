@@ -7,5 +7,9 @@
         public double Kms { get; set; }
         public string? Damage { get; set; }
         public string? Remarks { get; set; }
+        // Foreign Keys:
+        public ICollection<Reservation>? Reservations { get; set; }
+        public ICollection<DeliveryImage>? DeliveryImages { get; set; }
+        // TODO: add employee id
     }
 }
