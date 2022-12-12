@@ -169,12 +169,26 @@ namespace Rental4You.Controllers
                 return Problem("Entity set 'ApplicationDbContext.Companies'  is null.");
             }
             var company = await _context.Companies.FindAsync(id);
-            if (company != null)
+            if(company != null)
             {
-                _context.Companies.Remove(company);
+                var existingReservations = from c in _context.Companies
+                        where c.Id == id
+                        join v in _context.Vehicles on c.Id equals v.CompanyId
+                        join r in _context.Reservations on v.Id equals r.VehicleId
+                        select c;
+                if (existingReservations != null && existingReservations.Count() > 0)
+                {
+                    // Reservations are existing -> do not delete!
+                    ViewData["Error"] = "Company cannot be deleted, because reservations exist.";
+                    return View(company);
+                } else
+                {
+                    // No reservations existing -> delete!
+                    _context.Companies.Remove(company);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
