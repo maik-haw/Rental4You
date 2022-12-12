@@ -20,9 +20,34 @@ namespace Rental4You.Controllers
         }
 
         // GET: Companies
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool? active)
         {
-              return View(await _context.Companies.ToListAsync());
+            if (active == null)
+                return View(await _context.Companies
+                    .ToListAsync());
+            else
+                return View(await _context.Companies
+                    .Where(c => c.IsActive == active)
+                    .ToListAsync());
+        }
+
+        // GET: Companies/Search
+        [HttpGet]
+        public async Task<IActionResult> Search(string? searchText)
+        {
+            if (searchText == null)
+            {
+                var allCompanies = await _context.Companies
+                    .ToListAsync();
+                return View("Index", allCompanies);
+            }
+            else
+            {
+                var searchResults = await _context.Companies
+                    .Where(c => c.Name.Contains(searchText))
+                    .ToListAsync();
+                return View("Index", searchResults);
+            }
         }
 
         // GET: Companies/Details/5

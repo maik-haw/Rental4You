@@ -1,27 +1,47 @@
 ﻿@model IEnumerable<Rental4You.Models.Company>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Companies";
 }
 
-<h1>Index</h1>
+<h1>All Companies</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
+
+<div class="row">
+    <div class="col">
+        <a asp-action="Index">All companies</a>
+        <a asp-action="Index" asp-route-active="true">Active</a>
+        <a asp-action="Index" asp-route-active="false">Inactive</a>
+    </div>
+    <div class="col">
+        @using (Html.BeginForm("Search", "Companies", FormMethod.Get))
+        {
+            <div class="form-inline d-flex">
+                <input type="text" name="searchText" id="searchText" placeholder="Search for company name..." class="form-control form-control-sm" />
+                <button type="submit" class="btn btn-default ms-2 me-2">
+                    <svg bootstrap-icon="Search" class="text-warning" width="24" height="24" aria-label="Search"></svg>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+<table id="companiesTable" class="mt-4" data-toggle="table" @*data-search="true"*@>
     <thead>
         <tr>
-            <th>
+            <th data-sortable="true" data-searchable="true">
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th>
+            <th data-searchable="false">
                 @Html.DisplayNameFor(model => model.IsActive)
             </th>
-            <th>
+            <th data-sortable="true" data-searchable="false">
                 @Html.DisplayNameFor(model => model.Rating)
             </th>
-            <th></th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
