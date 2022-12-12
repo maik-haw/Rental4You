@@ -171,19 +171,18 @@ namespace Rental4You.Controllers
             var company = await _context.Companies.FindAsync(id);
             if(company != null)
             {
-                var existingReservations = from c in _context.Companies
+                var existingVehicles = from c in _context.Companies
                         where c.Id == id
                         join v in _context.Vehicles on c.Id equals v.CompanyId
-                        join r in _context.Reservations on v.Id equals r.VehicleId
                         select c;
-                if (existingReservations != null && existingReservations.Count() > 0)
+                if (existingVehicles != null && existingVehicles.Count() > 0)
                 {
-                    // Reservations are existing -> do not delete!
-                    ViewData["Error"] = "Company cannot be deleted, because reservations exist.";
+                    // Vehicles associated to company exist -> do not delete!
+                    ViewData["Error"] = "Company cannot be deleted, because vehicles are registered. Please delete them first!";
                     return View(company);
                 } else
                 {
-                    // No reservations existing -> delete!
+                    // No vehicles associated to company exist -> delete!
                     _context.Companies.Remove(company);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
