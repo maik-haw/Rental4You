@@ -16,5 +16,6 @@ namespace Rental4You.Models
         public double Rating { get; set; }
         // Foreign Keys:
         public ICollection<Vehicle>? Vehicles { get; set; }
+        public ICollection<ApplicationUser>? Employees { get; set; }
     }
 }

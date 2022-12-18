@@ -9,6 +9,7 @@
         public string? Remarks { get; set; }
         // Foreign Keys:
         public ICollection<Reservation>? Reservations { get; set; }
-        // TODO: add employee id
+        public string? EmployeeId { get; set; }
+        public ApplicationUser? Employee { get; set; }
     }
 }
