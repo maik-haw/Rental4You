@@ -13,12 +13,11 @@ namespace Rental4You.Models
         // Foreign Keys:
         public int? VehicleId { get; set; }
         public Vehicle? Vehicle { get; set; }
-        // TODO: Add Customer ID
-        // public string ApplicationUserId { get; set; }
-        // public ApplicationUser ApplicationUser { get; set; }
         public int? PickupId { get; set; }
         public Pickup? Pickup { get; set; }
         public int? DeliveryId { get; set; }
         public Delivery? Delivery { get; set; }
+        public string? ClientId { get; set; }
+        public ApplicationUser? Client { get; set; }
     }
 }
