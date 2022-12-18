@@ -9,7 +9,7 @@ namespace Rental4You.Models
         [Display(Name = "Company Name")]
         public string? Name { get; set; }
 
-        [Display(Name = "Is active")]
+        [Display(Name = "Active")]
         public bool IsActive { get; set; }
 
         [Display(Name = "Rating")]

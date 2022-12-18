@@ -1,8 +1,12 @@
-﻿namespace Rental4You.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Rental4You.Models
 {
     public class Reservation
     {
         public int Id { get; set; }
+
+        [Display(Name = "Created at")]
         public DateTime CreatedAt { get; set; }
         // TODO: status probably should be an enum?
         public string? Status { get; set; }
