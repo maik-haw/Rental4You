@@ -113,7 +113,8 @@ namespace Rental4You.Controllers
                 await _userManager.AddToRoleAsync(companyManager, Roles.Manager.ToString());
                 TempData["Info"] = String.Format(
                     "Company '{0}' was created. " +
-                    "The Manager can now login with Username '{1}' and Password '{2}'",
+                    "The Manager can now login with Username '{1}' and Password '{2}'. " +
+                    "Please consider changing the default password!",
                     company.Name, company.EMail, password);
                 return RedirectToAction(nameof(Index));
             }
@@ -212,6 +213,7 @@ namespace Rental4You.Controllers
                     return View(company);
                 } else
                 {
+                    // Remove all Users associated with the company
                     var users = await _context.Users.Where(u => u.CompanyId == company.Id).ToListAsync();
                     foreach (var user in users) {
                         _context.Users.Remove(user);

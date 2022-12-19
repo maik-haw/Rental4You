@@ -41,8 +41,8 @@
                                     <li><a class="dropdown-item" asp-controller="Reservations" asp-action="Index">Manage Reservations</a></li>
                                     @if (User.IsInRole("Manager"))
                                     {
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li><a class="dropdown-item" asp-controller="Vehicles" asp-action="Index">Manage Employees</a></li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                        <li><a class="dropdown-item" asp-controller="UserManager" asp-action="Index">Manage Employees</a></li>
                                     }
                                 </ul>
                             </li>
