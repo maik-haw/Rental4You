@@ -13,9 +13,13 @@ namespace Rental4You.Data
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<VehicleCategory> VehicleCategories { get; set; }
+        public DbSet<ApplicationUser> Users { get; set; }
+
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
+
     }
 }

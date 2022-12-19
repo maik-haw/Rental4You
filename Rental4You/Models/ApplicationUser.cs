@@ -3,8 +3,8 @@ namespace Rental4You.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         [PersonalData]
         public DateTime BirthDate { get; set; }
         public byte[]? UserAvatar { get; set; }

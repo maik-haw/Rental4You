@@ -9,7 +9,7 @@
         public string? Remarks { get; set; }
         // Foreign Keys:
         public ICollection<Reservation>? Reservations { get; set; }
-        public string? EmployeeId { get; set; }
+        public string EmployeeId { get; set; }
         public ApplicationUser? Employee { get; set; }
     }
 }

@@ -7,7 +7,10 @@ namespace Rental4You.Models
         public int Id { get; set; }
 
         [Display(Name = "Company Name")]
-        public string? Name { get; set; }
+        public string Name { get; set; }
+
+        [Display(Name = "E-Mail")]
+        public string EMail { get; set; }
 
         [Display(Name = "Active")]
         public bool IsActive { get; set; }

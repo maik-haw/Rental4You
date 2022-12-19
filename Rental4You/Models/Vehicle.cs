@@ -8,9 +8,9 @@
         public string? Location { get; set; }
         public decimal Cost { get; set; }
         // Foreign Keys:
-        public int? VehicleCategoryId { get; set; }
+        public int VehicleCategoryId { get; set; }
         public VehicleCategory? VehicleCategory { get; set; }
-        public int? CompanyId { get; set; }
+        public int CompanyId { get; set; }
         public Company? Company { get; set; }
     }
 }
