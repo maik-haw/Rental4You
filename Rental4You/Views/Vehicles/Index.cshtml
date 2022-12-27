@@ -9,23 +9,50 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
+
+<div class="row">
+    <div class="col">
+        <a asp-action="Index">All vehicles</a>
+        <a asp-action="Index" asp-route-active="true">Active</a>
+        <a asp-action="Index" asp-route-active="false">Inactive</a>
+        <div class="form-inline d-flex">
+            <form method="get" asp-action="Index">
+                <label class="control-label mt-3">Filter by Category</label>
+                <select class="form-control" asp-items="ViewBag.CategoryId" name="category">
+                    <option>-</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table class="table mt-5" data-toggle="table">
     <thead>
         <tr>
+            <th data-sortable="true" data-searchable="true">
+                @Html.DisplayNameFor(model => model.VehicleCategory)
+            </th>
+            <th data-sortable="true" data-searchable="true">
+                @Html.DisplayNameFor(model => model.Model)
+            </th>
             <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th data-sortable="true">
+                @Html.DisplayNameFor(model => model.Seats)
+            </th>
+            <th data-sortable="true">
                 @Html.DisplayNameFor(model => model.Kms)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.IsActive)
             </th>
-            <th>
+            <th data-sortable="true" data-searchable="true">
                 @Html.DisplayNameFor(model => model.Location)
             </th>
-            <th>
+            <th data-sortable="true">
                 @Html.DisplayNameFor(model => model.Cost)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VehicleCategory)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Company)
@@ -34,32 +61,42 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Kms)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Location)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Cost)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.VehicleCategory.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Company.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VehicleCategory.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Model)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Seats)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Kms)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsActive)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Cost)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Company.Name)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

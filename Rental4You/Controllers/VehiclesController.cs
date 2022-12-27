@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Rental4You.Data;
 using Rental4You.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Rental4You.Controllers
 {
@@ -19,11 +20,50 @@ namespace Rental4You.Controllers
             _context = context;
         }
 
-        // GET: Vehicles
-        public async Task<IActionResult> Index()
+        private ApplicationUser GetCurrentUser()
         {
-            var applicationDbContext = _context.Vehicles.Include(v => v.Company).Include(v => v.VehicleCategory);
-            return View(await applicationDbContext.ToListAsync());
+            var user = _context.Users
+                .Where(u => u.UserName == User.Identity.Name)
+                .Include(u => u.Company)
+                .FirstOrDefault();
+            return user;
+        }
+
+        // GET: Vehicles
+        public async Task<IActionResult> Index(bool? active, int? category)
+        {
+            var user = GetCurrentUser();
+            if (user == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
+
+            if(category == null && active != null)
+                return View(await _context.Vehicles
+                    .Where(v => v.CompanyId == user.CompanyId && v.IsActive == active)
+                    .Include(v => v.Company)
+                    .Include(v => v.VehicleCategory)
+                    .ToListAsync());
+            else if(category != null && active == null)
+                return View(await _context.Vehicles
+                    .Where(v => v.CompanyId == user.CompanyId && v.VehicleCategoryId == category)
+                    .Include(v => v.Company)
+                    .Include(v => v.VehicleCategory)
+                    .ToListAsync());
+            else if (category != null && active != null)
+                return View(await _context.Vehicles
+                    .Where(v => v.CompanyId == user.CompanyId && v.VehicleCategoryId == category && v.IsActive == active)
+                    .Include(v => v.Company)
+                    .Include(v => v.VehicleCategory)
+                    .ToListAsync());
+            else
+                return View(await _context.Vehicles
+                    .Where(v => v.CompanyId == user.CompanyId)
+                    .Include(v => v.Company)
+                    .Include(v => v.VehicleCategory)
+                    .ToListAsync());
         }
 
         // GET: Vehicles/Details/5
@@ -49,8 +89,7 @@ namespace Rental4You.Controllers
         // GET: Vehicles/Create
         public IActionResult Create()
         {
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Id");
-            ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Id");
+            ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
             return View();
         }
 
@@ -59,15 +98,21 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Kms,IsActive,Location,Cost,VehicleCategoryId,CompanyId")] Vehicle vehicle)
+        public async Task<IActionResult> Create([Bind("Id,Model,Description,Seats,Kms,IsActive,Location,Cost,VehicleCategoryId,CompanyId")] Vehicle vehicle)
         {
             if (ModelState.IsValid)
             {
+                var employee = GetCurrentUser();
+                if(employee.CompanyId == null)
+                {
+                    TempData["Error"] = "Current user is not associated to a company. Cannot create vehicle.";
+                    return RedirectToAction("Index");
+                }
+                vehicle.CompanyId = (int) employee.CompanyId;
                 _context.Add(vehicle);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Id", vehicle.CompanyId);
             ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Id", vehicle.VehicleCategoryId);
             return View(vehicle);
         }
@@ -85,8 +130,7 @@ namespace Rental4You.Controllers
             {
                 return NotFound();
             }
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Id", vehicle.CompanyId);
-            ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Id", vehicle.VehicleCategoryId);
+            ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name", vehicle.VehicleCategoryId);
             return View(vehicle);
         }
 
@@ -95,7 +139,7 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Kms,IsActive,Location,Cost,VehicleCategoryId,CompanyId")] Vehicle vehicle)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Model,Description,Seats,Kms,IsActive,Location,Cost,VehicleCategoryId,CompanyId")] Vehicle vehicle)
         {
             if (id != vehicle.Id)
             {
@@ -122,8 +166,7 @@ namespace Rental4You.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Id", vehicle.CompanyId);
-            ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Id", vehicle.VehicleCategoryId);
+            ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name", vehicle.VehicleCategoryId);
             return View(vehicle);
         }
 
@@ -156,6 +199,17 @@ namespace Rental4You.Controllers
             {
                 return Problem("Entity set 'ApplicationDbContext.Vehicles'  is null.");
             }
+
+            var existingReservations = from r in _context.Reservations
+                                       where r.VehicleId == id
+                                       select r;
+            if (existingReservations != null && existingReservations.Count() > 0)
+            {
+                // Reservations associated to vehicle exist -> do not delete!
+                TempData["Error"] = "Vehicle cannot be deleted, because Reservations exist.";
+                return RedirectToAction("Index");
+            }
+
             var vehicle = await _context.Vehicles.FindAsync(id);
             if (vehicle != null)
             {
