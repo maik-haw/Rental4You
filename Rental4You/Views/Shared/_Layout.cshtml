@@ -14,7 +14,7 @@
     <div class="cover-container d-flex w-100 h-100 p-0 mx-auto flex-column">
         <header class="p-7 text-white">
             <div class="container">
-                <nav class="navbar bg-primary bg-opacity-75 navbar-expand-sm navbar-toggleable-sm navbar-dark mb-3 fixed-top" @*style="background: rgba(72, 122, 220, .7);"*@>
+                <nav class="navbar bg-primary navbar-expand-sm navbar-toggleable-sm navbar-dark mb-3 fixed-top" @*style="background: rgba(72, 122, 220, .7);"*@>
                     <div class="container">
                         <a class="navbar-brand text-white fw-bold" asp-area="" asp-controller="Home" asp-action="Index">Rental4You</a>
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -58,8 +58,6 @@
                                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                             <li><a class="dropdown-item" asp-controller="Companies" asp-action="Index">Manage Companies</a></li>
                                             <li><a class="dropdown-item" asp-controller="VehicleCategories" asp-action="Index">Manage Vehicle Categories</a></li>
-                                            <li><hr class="dropdown-divider" /></li>
-                                            <li><a class="dropdown-item" asp-controller="UserManager" asp-action="Index">Manage Users</a></li>
                                         </ul>
                                     </li>
                                 }
@@ -71,28 +69,29 @@
             </div>
         </header>
 
-        <div class="container">
-            @if (@TempData["Error"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <p>
-                        <strong>@TempData["Error"]</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </p>
-                </div>
-            }
-            @if (@TempData["Info"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <p>
-                        <strong>@TempData["Info"]</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </p>
-                </div>
-            }
-        </div>
-
         <main role="main" class="container mt-5 pt-5 text-start">
+
+            <div class="container-fluid">
+                @if (@TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <p>
+                            <strong>@TempData["Error"]</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </p>
+                    </div>
+                }
+                @if (@TempData["Info"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <p>
+                            <strong>@TempData["Info"]</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </p>
+                    </div>
+                }
+            </div>
+
             @RenderBody()
         </main>
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -89,7 +90,7 @@ namespace Rental4You.Controllers
                 _context.Add(company);
                 await _context.SaveChangesAsync();
                 var savedCompany = await _context.Companies
-                    .Where(c => c.Name == company.Name)
+                    .Where(c => c.Name == company.Name && c.EMail == company.EMail)
                     .FirstOrDefaultAsync();
                 var companyManager = new ApplicationUser
                 {
@@ -102,20 +103,13 @@ namespace Rental4You.Controllers
                     CompanyId = savedCompany.Id,
                     Company = savedCompany
                 };
-                _context.Add(companyManager);
-                // Create an initial password for the Manager profile
-                var password = company.Name.Trim()
-                    .Replace(" ", "_")
-                    .Replace(",", ".")
-                    .ToLower();
-                await _userManager.CreateAsync(companyManager, password);
-                await _context.SaveChangesAsync();
+                await _userManager.CreateAsync(companyManager, "Manager...123");
                 await _userManager.AddToRoleAsync(companyManager, Roles.Manager.ToString());
                 TempData["Info"] = String.Format(
                     "Company '{0}' was created. " +
-                    "The Manager can now login with Username '{1}' and Password '{2}'. " +
+                    "The Manager can now login with Username '{1}' and Password 'Manager...123'. " +
                     "Please consider changing the default password!",
-                    company.Name, company.EMail, password);
+                    company.Name, company.EMail);
                 return RedirectToAction(nameof(Index));
             }
             return View(company);

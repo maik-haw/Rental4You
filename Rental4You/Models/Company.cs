@@ -16,7 +16,7 @@ namespace Rental4You.Models
         public bool IsActive { get; set; }
 
         [Display(Name = "Rating")]
-        public double Rating { get; set; }
+        public double Rating { get; set; } = 0.0;
         // Foreign Keys:
         public ICollection<Vehicle>? Vehicles { get; set; }
         public ICollection<ApplicationUser>? Employees { get; set; }
