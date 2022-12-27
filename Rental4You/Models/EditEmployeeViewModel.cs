@@ -16,6 +16,9 @@ namespace Rental4You.Models
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
+        [Display(Name = "Birthdate")]
+        public DateTime BirthDate { get; set; }
+
         [Display(Name = "Is active")]
         public bool IsActive { get; set; }
     }

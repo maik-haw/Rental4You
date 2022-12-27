@@ -14,7 +14,6 @@ namespace Rental4You.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly UserStore<ApplicationUser> _userStore;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public UserManagerController(
@@ -95,10 +94,11 @@ namespace Rental4You.Controllers
 
                 var user = new ApplicationUser
                 {
-                    UserName = createUser.UserName,
+                    UserName = createUser.EMail,
                     Email = createUser.EMail,
                     FirstName = createUser.FirstName,
                     LastName = createUser.LastName,
+                    BirthDate = createUser.BirthDate,
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
                     CompanyId = createUser.CompanyId
@@ -112,13 +112,24 @@ namespace Rental4You.Controllers
                         user.UserAvatar = dataStream.ToArray();
                     }
                 }
-                await _userManager.CreateAsync(user, createUser.Password);
-                var userId = await _userManager.GetUserIdAsync(user);
+                var res = await _userManager.CreateAsync(user, createUser.Password);
+                if(!res.Succeeded)
+                {
+                    foreach(var err in res.Errors)
+                    {
+                        if(err.Code.Contains("Password"))
+                        {
+                            ModelState.AddModelError("Password", err.Description);
+                        }
+                    }
+                    ViewData["Roles"] = new SelectList(new String[] { "Employee", "Manager" });
+                    return View(createUser);
+                }
+                await _userManager.AddToRoleAsync(user, createUser.Role);
+/*                var userId = await _userManager.GetUserIdAsync(user);
                 user.Id = userId;
                 _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-                await _userManager.AddToRoleAsync(user, createUser.Role);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();*/
                 TempData["Info"] = String.Format(
                     "Profile for employee '{0} {1}' was created. " +
                     "He/she can now login with Username '{2}' and Password '{3}'.",
@@ -147,6 +158,7 @@ namespace Rental4You.Controllers
                 UserName = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                BirthDate = user.BirthDate,
                 IsActive = user.IsActive
             };
             return View(model);
@@ -157,7 +169,7 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,IsActive,UserName,FirstName,LastName")] EditEmployeeViewModel editUser)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,FirstName,LastName,BirthDate,IsActive")] EditEmployeeViewModel editUser)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null || (editUser != null && id != editUser.Id))

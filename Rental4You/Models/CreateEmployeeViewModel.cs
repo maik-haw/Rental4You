@@ -8,9 +8,6 @@ namespace Rental4You.Models
         public string? Id { get; set; }
         public string Role { get; set; }
 
-        [Display(Name = "Username")]
-        public string UserName { get; set; }
-
         [Display(Name = "E-Mail")]
         public string EMail { get; set; }
 

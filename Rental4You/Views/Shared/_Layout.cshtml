@@ -69,8 +69,7 @@
             </div>
         </header>
 
-        <main role="main" class="container mt-5 pt-5 text-start">
-
+        <main class="container mt-5 pt-5 text-start">
             <div class="container-fluid">
                 @if (@TempData["Error"] != null)
                 {
@@ -91,15 +90,14 @@
                     </div>
                 }
             </div>
-
             @RenderBody()
         </main>
 
-        <footer class="border-top footer text-muted">
+@*        <footer class="border-top footer text-muted mt-4">
             <div class="container">
                 &copy; 2022 - Rental4You - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
             </div>
-        </footer>
+        </footer>*@
     </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
