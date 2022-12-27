@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Rental4You.Data;
 using Rental4You.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Rental4You.ViewModels;
 
 namespace Rental4You.Controllers
 {
@@ -40,30 +36,37 @@ namespace Rental4You.Controllers
 
             ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
 
+            List<Vehicle> vehicles;
             if(category == null && active != null)
-                return View(await _context.Vehicles
+                vehicles = await _context.Vehicles
                     .Where(v => v.CompanyId == user.CompanyId && v.IsActive == active)
                     .Include(v => v.Company)
                     .Include(v => v.VehicleCategory)
-                    .ToListAsync());
+                    .ToListAsync();
             else if(category != null && active == null)
-                return View(await _context.Vehicles
+                vehicles = await _context.Vehicles
                     .Where(v => v.CompanyId == user.CompanyId && v.VehicleCategoryId == category)
                     .Include(v => v.Company)
                     .Include(v => v.VehicleCategory)
-                    .ToListAsync());
+                    .ToListAsync();
             else if (category != null && active != null)
-                return View(await _context.Vehicles
+                vehicles = await _context.Vehicles
                     .Where(v => v.CompanyId == user.CompanyId && v.VehicleCategoryId == category && v.IsActive == active)
                     .Include(v => v.Company)
                     .Include(v => v.VehicleCategory)
-                    .ToListAsync());
+                    .ToListAsync();
             else
-                return View(await _context.Vehicles
+                vehicles = await _context.Vehicles
                     .Where(v => v.CompanyId == user.CompanyId)
                     .Include(v => v.Company)
                     .Include(v => v.VehicleCategory)
-                    .ToListAsync());
+                    .ToListAsync();
+
+            var vehiclesSearch = new VehiclesSearch();
+            vehiclesSearch.VehiclesList = vehicles;
+            vehiclesSearch.NumberResults = vehiclesSearch.VehiclesList.Count;
+            vehiclesSearch.CategoriesToSearch = new SelectList(_context.VehicleCategories.ToList(), "Id", "Name");
+            return View(vehiclesSearch);
         }
 
         // GET: Vehicles/Details/5
@@ -223,6 +226,59 @@ namespace Rental4You.Controllers
         private bool VehicleExists(int id)
         {
           return _context.Vehicles.Any(e => e.Id == id);
+        }
+
+        // GET
+        public async Task<IActionResult> Search(
+            [Bind("LocationToSearch, SelectedCategories, DeliveryDateToSearch, PickupDateToSearch")] 
+            VehiclesSearch vehiclesSearch)
+        {
+            var vehicleList = await _context.Vehicles.Include(x => x.Company).Include(x => x.VehicleCategory).ToListAsync();
+            ModelState.Remove("VehiclesList");
+            if (ModelState.IsValid)
+            {
+
+                if (!string.IsNullOrEmpty(vehiclesSearch.LocationToSearch))
+                {
+                    vehicleList = vehicleList
+                        .Where(x => x.Location.Contains(vehiclesSearch.LocationToSearch, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                }
+
+                if (vehiclesSearch.SelectedCategories != null && vehiclesSearch.SelectedCategories.Count() > 0)
+                {
+                    vehicleList = vehicleList
+                        .Where(x => x.VehicleCategory == null || vehiclesSearch.SelectedCategories.Contains(x.VehicleCategoryId.ToString()))
+                        .ToList();
+                }
+
+                if (vehiclesSearch.PickupDateToSearch.HasValue && vehiclesSearch.DeliveryDateToSearch.HasValue)
+                {
+                    var reservations = _context.Reservations.Include(x => x.Pickup).Include(x => x.Delivery).ToList();
+                    vehicleList = vehicleList.Where(v => 
+                        !reservations.Any(r =>
+                            r.VehicleId == v.Id &&
+                            (r.Pickup.PickupDate < vehiclesSearch.DeliveryDateToSearch &&
+                            r.Pickup.PickupDate >= vehiclesSearch.PickupDateToSearch) ||
+                            (r.Delivery.DeliveryDate <= vehiclesSearch.DeliveryDateToSearch &&
+                            r.Delivery.DeliveryDate > vehiclesSearch.PickupDateToSearch) || 
+                            (r.Pickup.PickupDate <= vehiclesSearch.PickupDateToSearch &&
+                            r.Delivery.DeliveryDate >= vehiclesSearch.DeliveryDateToSearch)))
+                        .ToList();
+
+                    //vehicleList = (from v in vehicleList
+                    //                join r in _context.Reservations on v.Id equals r.VehicleId
+                    //                where (r.Pickup.PickupDate >= vehiclesSearch.DeliveryDateToSearch || r.Delivery.DeliveryDate <= vehiclesSearch.PickupDateToSearch)
+                    //                where !(r.Pickup.PickupDate < vehiclesSearch.DeliveryDateToSearch && r.Delivery.DeliveryDate > vehiclesSearch.PickupDateToSearch)
+                    //                select v).ToList();
+                }
+            }
+            
+            vehiclesSearch.VehiclesList = vehicleList;
+            vehiclesSearch.NumberResults = vehiclesSearch.VehiclesList.Count;
+            vehiclesSearch.CategoriesToSearch = new SelectList(_context.VehicleCategories.ToList(), "Id", "Name");
+
+            return View("Index", vehiclesSearch);
         }
     }
 }

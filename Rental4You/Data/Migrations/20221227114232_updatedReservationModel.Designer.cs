@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rental4You.Data;
 
@@ -11,9 +12,10 @@ using Rental4You.Data;
 namespace Rental4You.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221227114232_updatedReservationModel")]
+    partial class updatedReservationModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,14 +187,9 @@ namespace Rental4You.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -254,15 +251,10 @@ namespace Rental4You.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("EMail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Rating")
@@ -288,7 +280,6 @@ namespace Rental4You.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("EmployeeId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<double>("Kms")
@@ -337,7 +328,6 @@ namespace Rental4You.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EmployeeId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<double>("Kms")
@@ -381,7 +371,7 @@ namespace Rental4You.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("VehicleId")
+                    b.Property<int?>("VehicleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -405,16 +395,13 @@ namespace Rental4You.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Cost")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
                     b.Property<double>("Kms")
@@ -423,13 +410,6 @@ namespace Rental4You.Data.Migrations
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Seats")
-                        .HasColumnType("int");
 
                     b.Property<int>("VehicleCategoryId")
                         .HasColumnType("int");
@@ -452,7 +432,6 @@ namespace Rental4You.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -524,9 +503,7 @@ namespace Rental4You.Data.Migrations
                 {
                     b.HasOne("Rental4You.Models.ApplicationUser", "Employee")
                         .WithMany("Deliveries")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EmployeeId");
 
                     b.Navigation("Employee");
                 });
@@ -546,9 +523,7 @@ namespace Rental4You.Data.Migrations
                 {
                     b.HasOne("Rental4You.Models.ApplicationUser", "Employee")
                         .WithMany("Pickups")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EmployeeId");
 
                     b.Navigation("Employee");
                 });
@@ -574,10 +549,8 @@ namespace Rental4You.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Rental4You.Models.Vehicle", "Vehicle")
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Reservations")
+                        .HasForeignKey("VehicleId");
 
                     b.Navigation("Client");
 
@@ -592,9 +565,7 @@ namespace Rental4You.Data.Migrations
                 {
                     b.HasOne("Rental4You.Models.Company", "Company")
                         .WithMany("Vehicles")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CompanyId");
 
                     b.HasOne("Rental4You.Models.VehicleCategory", "VehicleCategory")
                         .WithMany("Vehicles")
