@@ -10,6 +10,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Rental4You.Controllers
 {
+    [Authorize(Roles = "Manager, Admin")]
     public class UserManagerController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -17,7 +18,7 @@ namespace Rental4You.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public UserManagerController(
-            ApplicationDbContext context, 
+            ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager)
         {
@@ -26,7 +27,6 @@ namespace Rental4You.Controllers
             _roleManager = roleManager;
         }
 
-        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Index()
         {
             var manager = await _context.Users.Where(u => u.UserName == User.Identity.Name).FirstOrDefaultAsync();
@@ -34,10 +34,20 @@ namespace Rental4You.Controllers
             {
                 return RedirectToAction("Index");
             }
-            var users = await _context.Users
-                .Where(u => u.CompanyId != null && u.CompanyId == manager.CompanyId)
-                .ToListAsync();
-            return View(users);
+            if (User.IsInRole("Admin"))
+            {
+                var users = await _context.Users
+                    .ToListAsync();
+                return View(users);
+            }
+            else
+            {
+                var users = await _context.Users
+                    .Where(u => u.CompanyId != null && u.CompanyId == manager.CompanyId)
+                    .ToListAsync();
+                return View(users);
+            }
+
         }
 
         // GET: UserManager/Details/5
@@ -58,6 +68,7 @@ namespace Rental4You.Controllers
             return View(user);
         }
 
+        [Authorize(Roles = "Manager")]
         // GET: UserManager/Create
         public IActionResult Create()
         {
@@ -68,7 +79,7 @@ namespace Rental4You.Controllers
             }
             var newEmployee = new CreateEmployeeViewModel
             {
-                CompanyId = (int) manager.CompanyId,
+                CompanyId = (int)manager.CompanyId,
                 Role = Roles.Employee.ToString()
             };
             ViewData["Roles"] = new SelectList(new String[] { "Employee", "Manager" });
@@ -80,6 +91,7 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Create([Bind("UserName,EMail,FirstName,LastName,Password,Role,BirthDate,UserAvatar,CompanyId")] CreateEmployeeViewModel createUser)
         {
             if (ModelState.IsValid)
@@ -113,11 +125,11 @@ namespace Rental4You.Controllers
                     }
                 }
                 var res = await _userManager.CreateAsync(user, createUser.Password);
-                if(!res.Succeeded)
+                if (!res.Succeeded)
                 {
-                    foreach(var err in res.Errors)
+                    foreach (var err in res.Errors)
                     {
-                        if(err.Code.Contains("Password"))
+                        if (err.Code.Contains("Password"))
                         {
                             ModelState.AddModelError("Password", err.Description);
                         }
@@ -126,10 +138,10 @@ namespace Rental4You.Controllers
                     return View(createUser);
                 }
                 await _userManager.AddToRoleAsync(user, createUser.Role);
-/*                var userId = await _userManager.GetUserIdAsync(user);
-                user.Id = userId;
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();*/
+                /*                var userId = await _userManager.GetUserIdAsync(user);
+                                user.Id = userId;
+                                _context.Users.Add(user);
+                                await _context.SaveChangesAsync();*/
                 TempData["Info"] = String.Format(
                     "Profile for employee '{0} {1}' was created. " +
                     "He/she can now login with Username '{2}' and Password '{3}'.",
