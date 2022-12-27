@@ -371,13 +371,14 @@ namespace Rental4You.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeliveryId")
+                    b.Property<int>("DeliveryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PickupId")
+                    b.Property<int>("PickupId")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("VehicleId")
@@ -420,6 +421,7 @@ namespace Rental4You.Data.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("Location")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Model")
@@ -561,11 +563,15 @@ namespace Rental4You.Data.Migrations
 
                     b.HasOne("Rental4You.Models.Delivery", "Delivery")
                         .WithMany("Reservations")
-                        .HasForeignKey("DeliveryId");
+                        .HasForeignKey("DeliveryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Rental4You.Models.Pickup", "Pickup")
                         .WithMany("Reservations")
-                        .HasForeignKey("PickupId");
+                        .HasForeignKey("PickupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Rental4You.Models.Vehicle", "Vehicle")
                         .WithMany()
@@ -625,6 +631,11 @@ namespace Rental4You.Data.Migrations
                 });
 
             modelBuilder.Entity("Rental4You.Models.Pickup", b =>
+                {
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("Rental4You.Models.Vehicle", b =>
                 {
                     b.Navigation("Reservations");
                 });

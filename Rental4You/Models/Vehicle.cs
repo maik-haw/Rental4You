@@ -32,5 +32,6 @@ namespace Rental4You.Models
         public int CompanyId { get; set; }
         [Display(Name = "Company")]
         public Company? Company { get; set; }
+        public IEnumerable<Reservation>? Reservations { get; set; }
     }
 }
