@@ -3,17 +3,19 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rental4You.Data;
 
 #nullable disable
 
-namespace Rental4You.Data.Migrations
+namespace Rental4You.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221227193640_InitialMigration")]
+    partial class InitialMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -297,9 +299,15 @@ namespace Rental4You.Data.Migrations
                     b.Property<string>("Remarks")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ReservationId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("ReservationId")
+                        .IsUnique();
 
                     b.ToTable("Deliveries");
                 });
@@ -349,9 +357,15 @@ namespace Rental4You.Data.Migrations
                     b.Property<string>("Remarks")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ReservationId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("ReservationId")
+                        .IsUnique();
 
                     b.ToTable("Pickups");
                 });
@@ -388,10 +402,6 @@ namespace Rental4You.Data.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.HasIndex("DeliveryId");
-
-                    b.HasIndex("PickupId");
-
                     b.HasIndex("VehicleId");
 
                     b.ToTable("Reservations");
@@ -421,7 +431,6 @@ namespace Rental4You.Data.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("Location")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Model")
@@ -528,7 +537,15 @@ namespace Rental4You.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Rental4You.Models.Reservation", "Reservation")
+                        .WithOne("Delivery")
+                        .HasForeignKey("Rental4You.Models.Delivery", "ReservationId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
                     b.Navigation("Employee");
+
+                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("Rental4You.Models.DeliveryImage", b =>
@@ -550,7 +567,15 @@ namespace Rental4You.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Rental4You.Models.Reservation", "Reservation")
+                        .WithOne("Pickup")
+                        .HasForeignKey("Rental4You.Models.Pickup", "ReservationId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
                     b.Navigation("Employee");
+
+                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("Rental4You.Models.Reservation", b =>
@@ -561,29 +586,13 @@ namespace Rental4You.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Rental4You.Models.Delivery", "Delivery")
-                        .WithMany("Reservations")
-                        .HasForeignKey("DeliveryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Rental4You.Models.Pickup", "Pickup")
-                        .WithMany("Reservations")
-                        .HasForeignKey("PickupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Rental4You.Models.Vehicle", "Vehicle")
-                        .WithMany()
+                        .WithMany("Reservations")
                         .HasForeignKey("VehicleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Client");
-
-                    b.Navigation("Delivery");
-
-                    b.Navigation("Pickup");
 
                     b.Navigation("Vehicle");
                 });
@@ -626,13 +635,13 @@ namespace Rental4You.Data.Migrations
             modelBuilder.Entity("Rental4You.Models.Delivery", b =>
                 {
                     b.Navigation("DeliveryImages");
-
-                    b.Navigation("Reservations");
                 });
 
-            modelBuilder.Entity("Rental4You.Models.Pickup", b =>
+            modelBuilder.Entity("Rental4You.Models.Reservation", b =>
                 {
-                    b.Navigation("Reservations");
+                    b.Navigation("Delivery");
+
+                    b.Navigation("Pickup");
                 });
 
             modelBuilder.Entity("Rental4You.Models.Vehicle", b =>
