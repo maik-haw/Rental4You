@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; }
-        // TODO: status probably should be an enum?
+        // TODO: Change status for enum
         public string Status { get; set; }
         // Foreign Keys:
         public int? VehicleId { get; set; }

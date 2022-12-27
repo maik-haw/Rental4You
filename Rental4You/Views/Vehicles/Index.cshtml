@@ -17,14 +17,12 @@
             <div class="form-inline d-flex">
                 <div class="row">
                     <div class="form-group">
-                        @*@Html.TextBoxFor(model => model.LocationToSearch)*@
                         <label asp-for="LocationToSearch" class="control-label"></label>
                         <input asp-for="LocationToSearch" type="text" placeholder="Search for Vehicles" class="form-control form-control-sm" />
                         <span asp-validation-for="LocationToSearch" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
-                        @*@Html.ListBoxFor(model => model.SelectedCategories, Model.CategoriesToSearch)*@
                         <label asp-for="SelectedCategories"></label>
                         <select class="form-select" asp-for="SelectedCategories" asp-items="Model.CategoriesToSearch" multiple></select>
                         <span asp-validation-for="SelectedCategories" class="text-danger"></span>
