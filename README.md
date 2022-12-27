@@ -120,7 +120,7 @@ PWEB Project 2022/2023 - Web Application for managing car rentals.
 - VehicleId
 - CustomerId
 - CreatedDate
-- Status (open, confirmed, rejected)
+- Status (open, confirmed, rejected, closed)
 - PickupId
 - DeliveryId
 

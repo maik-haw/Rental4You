@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rental4You.Data;
 
@@ -11,9 +12,10 @@ using Rental4You.Data;
 namespace Rental4You.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221223164118_updatedVehiclesModel")]
+    partial class updatedVehiclesModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -353,20 +355,18 @@ namespace Rental4You.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ClientId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DeliveryId")
+                    b.Property<int?>("DeliveryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PickupId")
+                    b.Property<int?>("PickupId")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("VehicleId")
@@ -530,21 +530,15 @@ namespace Rental4You.Data.Migrations
                 {
                     b.HasOne("Rental4You.Models.ApplicationUser", "Client")
                         .WithMany("Reservations")
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ClientId");
 
                     b.HasOne("Rental4You.Models.Delivery", "Delivery")
                         .WithMany("Reservations")
-                        .HasForeignKey("DeliveryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DeliveryId");
 
                     b.HasOne("Rental4You.Models.Pickup", "Pickup")
                         .WithMany("Reservations")
-                        .HasForeignKey("PickupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PickupId");
 
                     b.HasOne("Rental4You.Models.Vehicle", "Vehicle")
                         .WithMany("Reservations")
