@@ -37,13 +37,13 @@ namespace Rental4You.Controllers
             ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
 
             List<Vehicle> vehicles;
-            if(category == null && active != null)
+            if (category == null && active != null)
                 vehicles = await _context.Vehicles
                     .Where(v => v.CompanyId == user.CompanyId && v.IsActive == active)
                     .Include(v => v.Company)
                     .Include(v => v.VehicleCategory)
                     .ToListAsync();
-            else if(category != null && active == null)
+            else if (category != null && active == null)
                 vehicles = await _context.Vehicles
                     .Where(v => v.CompanyId == user.CompanyId && v.VehicleCategoryId == category)
                     .Include(v => v.Company)
@@ -106,12 +106,12 @@ namespace Rental4You.Controllers
             if (ModelState.IsValid)
             {
                 var employee = GetCurrentUser();
-                if(employee.CompanyId == null)
+                if (employee.CompanyId == null)
                 {
                     TempData["Error"] = "Current user is not associated to a company. Cannot create vehicle.";
                     return RedirectToAction("Index");
                 }
-                vehicle.CompanyId = (int) employee.CompanyId;
+                vehicle.CompanyId = (int)employee.CompanyId;
                 _context.Add(vehicle);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -218,19 +218,19 @@ namespace Rental4You.Controllers
             {
                 _context.Vehicles.Remove(vehicle);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool VehicleExists(int id)
         {
-          return _context.Vehicles.Any(e => e.Id == id);
+            return _context.Vehicles.Any(e => e.Id == id);
         }
 
         // GET
         public async Task<IActionResult> Search(
-            [Bind("LocationToSearch, SelectedCategories, DeliveryDateToSearch, PickupDateToSearch")] 
+            [Bind("LocationToSearch, SelectedCategories, DeliveryDateToSearch, PickupDateToSearch")]
             VehiclesSearch vehiclesSearch)
         {
             var vehicleList = await _context.Vehicles.Include(x => x.Company).Include(x => x.VehicleCategory).ToListAsync();
@@ -255,13 +255,13 @@ namespace Rental4You.Controllers
                 if (vehiclesSearch.PickupDateToSearch.HasValue && vehiclesSearch.DeliveryDateToSearch.HasValue)
                 {
                     var reservations = _context.Reservations.Include(x => x.Pickup).Include(x => x.Delivery).ToList();
-                    vehicleList = vehicleList.Where(v => 
+                    vehicleList = vehicleList.Where(v =>
                         !reservations.Any(r =>
                             r.VehicleId == v.Id &&
                             (r.Pickup.PickupDate < vehiclesSearch.DeliveryDateToSearch &&
                             r.Pickup.PickupDate >= vehiclesSearch.PickupDateToSearch) ||
                             (r.Delivery.DeliveryDate <= vehiclesSearch.DeliveryDateToSearch &&
-                            r.Delivery.DeliveryDate > vehiclesSearch.PickupDateToSearch) || 
+                            r.Delivery.DeliveryDate > vehiclesSearch.PickupDateToSearch) ||
                             (r.Pickup.PickupDate <= vehiclesSearch.PickupDateToSearch &&
                             r.Delivery.DeliveryDate >= vehiclesSearch.DeliveryDateToSearch)))
                         .ToList();
@@ -273,7 +273,7 @@ namespace Rental4You.Controllers
                     //                select v).ToList();
                 }
             }
-            
+
             vehiclesSearch.VehiclesList = vehicleList;
             vehiclesSearch.NumberResults = vehiclesSearch.VehiclesList.Count;
             vehiclesSearch.CategoriesToSearch = new SelectList(_context.VehicleCategories.ToList(), "Id", "Name");

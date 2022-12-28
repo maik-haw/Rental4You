@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rental4You.Data;
 using Rental4You.Models;
 
-namespace Rental4You.Views
+namespace Rental4You.Controllers
 {
     public class VehicleCategoriesController : Controller
     {
@@ -22,7 +17,7 @@ namespace Rental4You.Views
         // GET: VehicleCategories
         public async Task<IActionResult> Index()
         {
-              return View(await _context.VehicleCategories.ToListAsync());
+            return View(await _context.VehicleCategories.ToListAsync());
         }
 
         // GET: VehicleCategories/Details/5
@@ -148,14 +143,14 @@ namespace Rental4You.Views
             {
                 _context.VehicleCategories.Remove(vehicleCategory);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool VehicleCategoryExists(int id)
         {
-          return _context.VehicleCategories.Any(e => e.Id == id);
+            return _context.VehicleCategories.Any(e => e.Id == id);
         }
     }
 }
