@@ -19,11 +19,51 @@ namespace Rental4You.Controllers
             _context = context;
         }
 
+        private ApplicationUser GetCurrentUser()
+        {
+            var user = _context.Users
+                .Where(u => u.UserName == User.Identity.Name)
+                .Include(u => u.Company)
+                .FirstOrDefault();
+            return user;
+        }
+
         // GET: Reservations
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Reservations.Include(r => r.Delivery).Include(r => r.Pickup).Include(r => r.Vehicle);
-            return View(await applicationDbContext.ToListAsync());
+            var user = GetCurrentUser();
+            // If Employee: only show reservations associated to his/her company
+            if (User.IsInRole("Employee") && user.CompanyId != null)
+            {
+                var reservations = await _context.Reservations
+                    .Include(r => r.Delivery)
+                    .Include(r => r.Pickup)
+                    .Include(r => r.Vehicle)
+                    .Where(r => r.Vehicle.CompanyId == user.CompanyId)
+                    .ToListAsync();
+                return View(reservations);
+            }
+            // If Client: show his/her own reservations
+            else if (User.IsInRole("Client"))
+            {
+                var reservations = await _context.Reservations
+                    .Include(r => r.Delivery)
+                    .Include(r => r.Pickup)
+                    .Include(r => r.Vehicle)
+                    .Where(r => r.ClientId == user.Id)
+                    .ToListAsync();
+                return View(reservations);
+            }
+            // Else: show all reservations
+            else
+            {
+                var reservations = await _context.Reservations
+                    .Include(r => r.Delivery)
+                    .Include(r => r.Pickup)
+                    .Include(r => r.Vehicle)
+                    .ToListAsync();
+                return View(reservations);
+            }
         }
 
         // GET: Reservations/Details/5

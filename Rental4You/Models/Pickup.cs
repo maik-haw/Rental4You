@@ -8,8 +8,9 @@
         public string? Damage { get; set; }
         public string? Remarks { get; set; }
         // Foreign Keys:
-        public ICollection<Reservation>? Reservations { get; set; }
-        public string? EmployeeId { get; set; }
+        public int ReservationId { get; set; }
+        public Reservation? Reservation { get; set; }
+        public string EmployeeId { get; set; }
         public ApplicationUser? Employee { get; set; }
     }
 }

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Reservations</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -40,13 +40,35 @@
                 @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Vehicle.Id)
+                @Html.DisplayFor(modelItem => item.Vehicle.Model)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Pickup.Id)
+                @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Pickup == null))
+                {
+                    <a asp-controller="Pickups" asp-action="Create" class="btn btn-warning">Create Pickup</a>
+                }
+                else if (item.Pickup == null)
+                {
+                    @Html.Raw("-")
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.Pickup.PickupDate)
+                }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Delivery.Id)
+                @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Delivery == null))
+                {
+                    <a asp-controller="Deliveries" asp-action="Create" class="btn btn-warning">Create Delivery</a>
+                }
+                else if (item.Delivery == null)
+                {
+                    @Html.Raw("-")
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.Delivery.DeliveryDate)
+                }
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

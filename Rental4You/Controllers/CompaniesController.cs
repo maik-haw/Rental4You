@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +15,12 @@ namespace Rental4You.Controllers
     public class CompaniesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CompaniesController(ApplicationDbContext context)
+        public CompaniesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Companies
@@ -79,12 +83,33 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,IsActive,Rating")] Company company)
+        public async Task<IActionResult> Create([Bind("Id,Name,EMail,IsActive,Rating")] Company company)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(company);
                 await _context.SaveChangesAsync();
+                var savedCompany = await _context.Companies
+                    .Where(c => c.Name == company.Name && c.EMail == company.EMail)
+                    .FirstOrDefaultAsync();
+                var companyManager = new ApplicationUser
+                {
+                    UserName = company.EMail,
+                    Email = company.EMail,
+                    FirstName = "Manager",
+                    LastName = company.Name,
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true,
+                    CompanyId = savedCompany.Id,
+                    Company = savedCompany
+                };
+                await _userManager.CreateAsync(companyManager, "Manager...123");
+                await _userManager.AddToRoleAsync(companyManager, Roles.Manager.ToString());
+                TempData["Info"] = String.Format(
+                    "Company '{0}' was created. " +
+                    "The Manager can now login with Username '{1}' and Password 'Manager...123'. " +
+                    "Please consider changing the default password!",
+                    company.Name, company.EMail);
                 return RedirectToAction(nameof(Index));
             }
             return View(company);
@@ -111,7 +136,7 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,IsActive,Rating")] Company company)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EMail,IsActive,Rating")] Company company)
         {
             if (id != company.Id)
             {
@@ -178,10 +203,15 @@ namespace Rental4You.Controllers
                 if (existingVehicles != null && existingVehicles.Count() > 0)
                 {
                     // Vehicles associated to company exist -> do not delete!
-                    ViewData["Error"] = "Company cannot be deleted, because vehicles are registered. Please delete them first!";
+                    TempData["Error"] = "Company cannot be deleted, because vehicles are registered. Please delete them first!";
                     return View(company);
                 } else
                 {
+                    // Remove all Users associated with the company
+                    var users = await _context.Users.Where(u => u.CompanyId == company.Id).ToListAsync();
+                    foreach (var user in users) {
+                        _context.Users.Remove(user);
+                    }
                     // No vehicles associated to company exist -> delete!
                     _context.Companies.Remove(company);
                     await _context.SaveChangesAsync();

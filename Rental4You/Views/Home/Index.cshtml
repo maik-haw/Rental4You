@@ -1,8 +1,172 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model Rental4You.ViewModels.VehiclesSearch
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>Search for your favorite vehicle</h1>
+
+<style>
+    .searchbar-vehicle {
+        display: flex;
+    }
+
+    .form-group {
+        position: relative;
+        margin: 5px 10px 5px 0;
+    }
+
+    .form-control {
+        position: relative;
+    }
+
+    .form-control small {
+        position: absolute;
+        top: -10px;
+        font-size: 75%;
+    }
+</style>
+
+<form class="searchbar-vehicle" asp-action="Search">
+    <div class="form-group">
+        <small class="form-text">Location</small>
+        <input asp-for="LocationToSearch" type="text" placeholder="e.g.: Coimbra" class="form-control form-control-sm" />
+        <span asp-validation-for="LocationToSearch" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <small class="form-text">Pickup Date</small>
+        <input type="date" asp-for="PickupDateToSearch" class="form-control" />
+        <span asp-validation-for="PickupDateToSearch" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <small class="form-text">Delivery Date</small>
+        <input type="date" asp-for="DeliveryDateToSearch" class="form-control" />
+        <span asp-validation-for="DeliveryDateToSearch" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <small class="form-text">Vehicle Type</small>
+        <select size="1" class="form-control" asp-for="CategoriesToSearch" asp-items="Model.CategoriesToSearch"></select>
+        <span asp-validation-for="CategoriesToSearch" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary" style="position: absolute; bottom: 0;">Search</button>
+    </div>
+</form>
+
+@if (Model.VehiclesList.Count > 0)
+{
+    <div class="container bg-white">
+        <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+            <h3 class="display-5 fw-normal">Available vehicles</h3>
+            <p class="fs-6 text-muted">
+                Here are the available vehicles for your search...
+            </p>
+        </div>
+        <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+            @foreach (var vehicle in Model.VehiclesList)
+            {
+                <div class="col">
+                    <div class="card mb-4 rounded-3 shadow-sm">
+                        <div class="card-header py-3">
+                            <h4 class="my-0 fw-normal">@vehicle.Model</h4>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mt-3 mb-4">
+                                <li>@vehicle.Description</li>
+                                <li>@vehicle.Cost € / hour</li>
+                                <li>@vehicle.Kms km</li>
+                            </ul>
+                            <button type="button" class="w-100 btn btn-lg btn-outline-primary">
+                                <a asp-controller="Reservations" asp-action="Create" asp-route-id="@vehicle.Id">Book</a>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @*<table class="table">
+        <thead>
+            <tr>
+                <th data-sortable="true" data-searchable="true">
+                    @Html.DisplayNameFor(model => model.VehiclesList.First().VehicleCategory)
+                </th>
+                <th data-sortable="true" data-searchable="true">
+                    @Html.DisplayNameFor(model => model.VehiclesList.First().Model)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.VehiclesList.First().Description)
+                </th>
+                <th data-sortable="true">
+                    @Html.DisplayNameFor(model => model.VehiclesList.First().Seats)
+                </th>
+                <th data-sortable="true">
+                    @Html.DisplayNameFor(model => model.VehiclesList.First().Kms)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.VehiclesList.First().IsActive)
+                </th>
+                <th data-sortable="true" data-searchable="true">
+                    @Html.DisplayNameFor(model => model.VehiclesList.First().Location)
+                </th>
+                <th data-sortable="true">
+                    @Html.DisplayNameFor(model => model.VehiclesList.First().Cost)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.VehiclesList.First().Company.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.VehiclesList.First().Company.Rating)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.VehiclesList)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.VehicleCategory.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Model)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Seats)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Kms)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.IsActive)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Location)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Cost)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Company.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Company.Rating)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>*@
+}
+else
+{
+    <div> No vehicles to display. </div>
+}
