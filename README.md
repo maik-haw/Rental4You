@@ -38,21 +38,21 @@ PWEB Project 2022/2023 - Web Application for managing car rentals.
 #### Manage company reservations
 
 - [x] List vehicle reservations (with filters: pickup date, delivery date, category, vehicle, customer)
-- [ ] Confirm a Reservation
-- [ ] Reject a Reservation
-- [ ] Deliver a vehicle to customer (pick up by customer)
-- [ ] Status of delivery
-- [ ] Vehicle kilometres
-- [ ] Vehicle damage (yes/no)
-- [ ] Remarks
-- [ ] Employee who made the delivery
-- [ ] Receiving a vehicle from the customer (delivery by customer)
+- [x] Confirm a Reservation
+- [x] Reject a Reservation
+- [x] Deliver a vehicle to customer (pick up by customer)
+- [x] Status of delivery
+- [x] Vehicle kilometres
+- [ ] Vehicle damage (yes/no) -> TODO: change to bool
+- [x] Remarks
+- [x] Employee who made the delivery
+- [x] Receiving a vehicle from the customer (delivery by customer)
 - [ ] Indicate the condition in which the vehicle is delivered by the customer
-  - Kilometres
-  - Damage (yes/no)
-  - If damaged: photos must be attached to document the damage
-  - Employee who received the vehicle
-  - Notes
+  - [x] Kilometres
+  - [ ] Damage (yes/no) -> TODO: change to bool
+  - [ ] If damaged: photos must be attached to document the damage
+  - [x] Employee who received the vehicle
+  - [x] Notes
 
 ### Manager Area
 
