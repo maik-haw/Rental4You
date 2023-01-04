@@ -22,6 +22,9 @@ namespace Rental4You.ViewModels
         [Display(Name = "Selected Categories")]
         public List<String>? SelectedCategories { get; set; }
 
+        [Display(Name = "Selected Category")]
+        public string? SelectedCategory { get; set; }
+
         [DataType(DataType.Date)]
         [FutureDate]
         [Display(Name = "Pickup Date")]

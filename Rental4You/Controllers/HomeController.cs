@@ -33,6 +33,7 @@ namespace Rental4You.Controllers
                 CategoriesToSearch = new SelectList(_context.VehicleCategories, "Id", "Name")
             };
 
+            ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
             return View(vehiclesSearch);
         }
 
@@ -81,7 +82,7 @@ namespace Rental4You.Controllers
             vehiclesSearch.NumberResults = vehiclesSearch.VehiclesList.Count;
             vehiclesSearch.CategoriesToSearch = new SelectList(_context.VehicleCategories.ToList(), "Id", "Name");
 
-
+            ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
             return View("Index", vehiclesSearch);
         }
 

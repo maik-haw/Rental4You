@@ -38,38 +38,88 @@ namespace Rental4You.Controllers
         public async Task<IActionResult> Index()
         {
             var user = GetCurrentUser();
+            List<Reservation> reservations;
             // If Employee: only show reservations associated to his/her company
             if (User.IsInRole("Employee") && user.CompanyId != null)
             {
-                var reservations = await _context.Reservations
+                reservations = await _context.Reservations
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
                     .Where(r => r.Vehicle.CompanyId == user.CompanyId)
                     .ToListAsync();
-                return View(reservations);
             }
             // If Client: show his/her own reservations
             else if (User.IsInRole("Client"))
             {
-                var reservations = await _context.Reservations
+                reservations = await _context.Reservations
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
                     .Where(r => r.ClientId == user.Id)
                     .ToListAsync();
-                return View(reservations);
             }
             // Else: show all reservations
             else
             {
-                var reservations = await _context.Reservations
+                reservations = await _context.Reservations
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
                     .ToListAsync();
-                return View(reservations);
             }
+
+            var model = new ReservationsSearch()
+            {
+                SearchResults = reservations,
+                NumberResults = reservations.Count
+            };
+            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Model");
+            ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
+            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "UserName");
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Search(ReservationsSearch search)
+        {
+            List<Reservation> reservations;
+            IQueryable<Reservation> query = _context.Reservations
+                .Include(r => r.Delivery)
+                .Include(r => r.Pickup)
+                .Include(r => r.Vehicle);
+
+            if (search.ClientId != null)
+                query = query.Where(r => r.ClientId == search.ClientId);
+            if (search.VehicleId != null)
+                query = query.Where(r => r.VehicleId == search.VehicleId);
+            if (search.CategoryId != null)
+                query = query.Where(r => r.Vehicle.VehicleCategoryId == search.CategoryId);
+
+            if (search.PickupDate != null && search.DeliveryDate != null)
+            {
+                query = query.Where(r => r.Pickup.PickupDate == search.PickupDate && 
+                                         r.Delivery.DeliveryDate == search.DeliveryDate);
+            }
+            else if (search.PickupDate != null)
+            {
+                query = query.Where(r => r.Pickup.PickupDate == search.PickupDate);
+            }
+            else if (search.DeliveryDate != null)
+            {
+                query = query.Where(r => r.Delivery.DeliveryDate == search.DeliveryDate);
+            }
+
+            reservations = await query.ToListAsync();
+
+            search.SearchResults = reservations;
+            search.NumberResults = reservations.Count;
+
+            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Model");
+            ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
+            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "UserName");
+            return View("Index", search);
         }
 
         // GET: Reservations/Details/5
@@ -110,7 +160,15 @@ namespace Rental4You.Controllers
             ReservationsVM reservationVM = new ReservationsVM();
             reservationVM.VehicleId = vehicle.Id;
             reservationVM.Vehicle = vehicle;
+            reservationVM.PickupDate = DateTime.Now;
+            reservationVM.DeliveryDate = DateTime.Now;
 
+            ViewData["DeliveryId"] = new SelectList(_context.Deliveries, "Id", "Id");
+            ViewData["PickupId"] = new SelectList(_context.Pickups, "Id", "Id");
+            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Model");
+            ViewData["ReservationStatus"] = new SelectList(Enum.GetValues(typeof(ReservationStatus))
+                .Cast<ReservationStatus>().ToList());
+            
             return View(reservationVM);
         }
 
@@ -119,7 +177,7 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("VehicleId,PickupDate,DeliveryDate")] ReservationsVM reservationVM)
+        public async Task<IActionResult> Create([Bind("ClientId,VehicleId,PickupDate,DeliveryDate")] ReservationsVM reservationVM)
         {
             ModelState.Remove(nameof(ReservationsVM.Vehicle));
             if (ModelState.IsValid)
@@ -145,6 +203,11 @@ namespace Rental4You.Controllers
 
                     Delivery delivery = new Delivery();
                     delivery.DeliveryDate = reservationVM.DeliveryDate;
+
+                    var user = _context.Users
+                        .Where(u => u.UserName == User.Identity.Name)
+                        .Include(u => u.Company)
+                        .FirstOrDefault();
 
                     Reservation reservation = new Reservation();
                     reservation.CreatedAt = DateTime.Now;
@@ -175,11 +238,18 @@ namespace Rental4You.Controllers
                     delivery.ReservationId = reservation.Id;
                     await _context.SaveChangesAsync();
 
+/*                    ViewData["DeliveryId"] = new SelectList(_context.Deliveries, "Id", "Id", reservation.DeliveryId);
+                    ViewData["PickupId"] = new SelectList(_context.Pickups, "Id", "Id", reservation.PickupId);
+                    ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Id", reservation.VehicleId);
+                    ViewData["ReservationStatus"] = new SelectList(Enum.GetValues(typeof(ReservationStatus))
+                        .Cast<string>().ToList());*/
+                    
                     return RedirectToAction(nameof(Index));
                 }
                 ViewData["ErrorMessage"] = "Selected vehicle isn't available during selected period of time";
                 return View(reservationVM);
             }
+            
             return View(reservationVM);
         }
 
@@ -198,7 +268,7 @@ namespace Rental4You.Controllers
             }
             ViewData["DeliveryId"] = new SelectList(_context.Deliveries, "Id", "Id", reservation.DeliveryId);
             ViewData["PickupId"] = new SelectList(_context.Pickups, "Id", "Id", reservation.PickupId);
-            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Id", reservation.VehicleId);
+            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Model", reservation.VehicleId);
             return View(reservation);
         }
 
@@ -237,6 +307,8 @@ namespace Rental4You.Controllers
             ViewData["DeliveryId"] = new SelectList(_context.Deliveries, "Id", "Id", reservation.DeliveryId);
             ViewData["PickupId"] = new SelectList(_context.Pickups, "Id", "Id", reservation.PickupId);
             ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Id", reservation.VehicleId);
+            ViewData["ReservationStatus"] = new SelectList(Enum.GetValues(typeof(ReservationStatus))
+                .Cast<string>().ToList());
             return View(reservation);
         }
 

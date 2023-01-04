@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Rental4You.Models;
+using System.Reflection.Emit;
 
 namespace Rental4You.Data
 {
@@ -35,6 +36,12 @@ namespace Rental4You.Data
                 .WithOne(p => p.Reservation)
                 .HasForeignKey<Delivery>(r => r.ReservationId)
                 .OnDelete(DeleteBehavior.ClientCascade);
+
+            builder.Entity<Reservation>()
+                .Property(e => e.Status)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (ReservationStatus)Enum.Parse(typeof(ReservationStatus), v));
         }
     }
 }

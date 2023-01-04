@@ -15,10 +15,9 @@ namespace Rental4You.Models
     public class Reservation
     {
         public int Id { get; set; }
-
+        public ReservationStatus Status { get; set; } = ReservationStatus.open;
         [Display(Name = "Created at")]
         public DateTime CreatedAt { get; set; }
-        public ReservationStatus Status { get; set; }
         // Foreign Keys:
         public int VehicleId { get; set; }
         public Vehicle? Vehicle { get; set; }

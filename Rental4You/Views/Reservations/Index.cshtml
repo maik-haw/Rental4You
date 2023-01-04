@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Rental4You.Models.Reservation>
+﻿@model Rental4You.ViewModels.ReservationsSearch
 
 @{
     ViewData["Title"] = "Index";
@@ -6,76 +6,150 @@
 
 <h1>Reservations</h1>
 
-<p>
+@*<p>
     <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Vehicle)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Pickup)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Delivery)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Vehicle.Model)
-            </td>
-            <td>
-                @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Pickup == null))
-                {
-                    <a asp-controller="Pickups" asp-action="Create" class="btn btn-warning">Create Pickup</a>
-                }
-                else if (item.Pickup == null)
-                {
-                    @Html.Raw("-")
-                }
-                else
-                {
-                    @Html.DisplayFor(modelItem => item.Pickup.PickupDate)
-                }
-            </td>
-            <td>
-                @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Delivery == null))
-                {
-                    <a asp-controller="Deliveries" asp-action="Create" class="btn btn-warning">Create Delivery</a>
-                }
-                else if (item.Delivery == null)
-                {
-                    @Html.Raw("-")
-                }
-                else
-                {
-                    @Html.DisplayFor(modelItem => item.Delivery.DeliveryDate)
-                }
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+</p>*@
+<style>
+    .searchbar-reservations {
+        display: flex;
+    }
+
+    .form-group {
+        position: relative;
+        margin: 5px 10px 5px 0;
+    }
+
+    .form-control {
+        position: relative;
+    }
+
+        .form-control small {
+            position: absolute;
+            top: -10px;
+            font-size: 75%;
+        }
+</style>
+@if (User.IsInRole("Employee") || User.IsInRole("Manager"))
+{
+    <form class="searchbar-reservations" asp-action="Search">
+        <div class="form-group">
+            <small class="form-text">Pickup Date</small>
+            <input type="date" asp-for="PickupDate" class="form-control" />
+            <span asp-validation-for="PickupDate" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <small class="form-text">Delivery Date</small>
+            <input type="date" asp-for="DeliveryDate" class="form-control" />
+            <span asp-validation-for="DeliveryDate" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <small class="form-text">Vehicle Type</small>
+            <select size="1" class="form-control" asp-for="CategoryId" asp-items="ViewBag.VehicleCategoryId">
+                <option value="">-</option>
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <small class="form-text">Vehicle</small>
+            <select size="1" class="form-control" asp-for="VehicleId" asp-items="ViewBag.VehicleId">
+                <option value="">-</option>
+            </select>
+            <span asp-validation-for="VehicleId" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <small class="form-text">Customer</small>
+            <select class="form-control" asp-for="ClientId" asp-items="ViewBag.CustomerId">
+                <option value="">-</option>
+            </select>
+            <span asp-validation-for="ClientId" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" style="position: absolute; bottom: 0;">Search</button>
+        </div>
+    </form>
 }
-    </tbody>
-</table>
+
+@if (Model.SearchResults.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.SearchResults.First().CreatedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SearchResults.First().Vehicle.Model)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SearchResults.First().Client.UserName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SearchResults.First().Status)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SearchResults.First().Pickup.PickupDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SearchResults.First().Delivery.DeliveryDate)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.SearchResults)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedAt)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Vehicle.Model)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Client.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td>
+                        @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Pickup == null))
+                        {
+                            <a asp-controller="Pickups" asp-action="Create" class="btn btn-warning">Create Pickup</a>
+                        }
+                        else if (item.Pickup == null)
+                        {
+                            @Html.Raw("-")
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => item.Pickup.PickupDate)
+                        }
+                    </td>
+                    <td>
+                        @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Delivery == null))
+                        {
+                            <a asp-controller="Deliveries" asp-action="Create" class="btn btn-warning">Create Delivery</a>
+                        }
+                        else if (item.Delivery == null)
+                        {
+                            @Html.Raw("-")
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => item.Delivery.DeliveryDate)
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div> No reservations to display. </div>
+}
