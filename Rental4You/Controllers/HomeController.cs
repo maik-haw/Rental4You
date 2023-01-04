@@ -33,6 +33,7 @@ namespace Rental4You.Controllers
                 CategoriesToSearch = new SelectList(_context.VehicleCategories, "Id", "Name")
             };
 
+            ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
             return View(vehiclesSearch);
         }
 
@@ -53,6 +54,7 @@ namespace Rental4You.Controllers
             // TODO: This SelectList will be rendered as "multiple select", but I don't know why!
             search.CategoriesToSearch = new SelectList(_context.VehicleCategories, "Id", "Name");
 
+            ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
             return View("Index", search);
         }
 

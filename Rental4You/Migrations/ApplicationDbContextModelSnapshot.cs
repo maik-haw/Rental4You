@@ -270,7 +270,7 @@ namespace Rental4You.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("Rental4You.Models.Delivery", b =>
@@ -307,7 +307,7 @@ namespace Rental4You.Migrations
                     b.HasIndex("ReservationId")
                         .IsUnique();
 
-                    b.ToTable("Deliveries");
+                    b.ToTable("Deliveries", (string)null);
                 });
 
             modelBuilder.Entity("Rental4You.Models.DeliveryImage", b =>
@@ -328,7 +328,7 @@ namespace Rental4You.Migrations
 
                     b.HasIndex("DeliveryId");
 
-                    b.ToTable("DeliveryImages");
+                    b.ToTable("DeliveryImages", (string)null);
                 });
 
             modelBuilder.Entity("Rental4You.Models.Pickup", b =>
@@ -365,7 +365,7 @@ namespace Rental4You.Migrations
                     b.HasIndex("ReservationId")
                         .IsUnique();
 
-                    b.ToTable("Pickups");
+                    b.ToTable("Pickups", (string)null);
                 });
 
             modelBuilder.Entity("Rental4You.Models.Reservation", b =>
@@ -402,7 +402,7 @@ namespace Rental4You.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("Reservations");
+                    b.ToTable("Reservations", (string)null);
                 });
 
             modelBuilder.Entity("Rental4You.Models.Vehicle", b =>
@@ -447,7 +447,7 @@ namespace Rental4You.Migrations
 
                     b.HasIndex("VehicleCategoryId");
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("Rental4You.Models.VehicleCategory", b =>
@@ -464,7 +464,7 @@ namespace Rental4You.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("VehicleCategories");
+                    b.ToTable("VehicleCategories", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

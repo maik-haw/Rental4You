@@ -45,8 +45,8 @@
     </div>
     <div class="form-group">
         <small class="form-text">Vehicle Type</small>
-        <select size="1" class="form-control" asp-for="CategoriesToSearch" asp-items="Model.CategoriesToSearch"></select>
-        <span asp-validation-for="CategoriesToSearch" class="text-danger"></span>
+        <select class="form-control" asp-for="SelectedCategory" asp-items="ViewBag.CategoryId"></select>
+        <span asp-validation-for="SelectedCategory" class="text-danger"></span>
     </div>
     <div class="form-group">
         <button type="submit" class="btn btn-primary" style="position: absolute; bottom: 0;">Search</button>

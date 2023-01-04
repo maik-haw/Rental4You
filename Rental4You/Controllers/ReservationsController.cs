@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Rental4You.Data;
 using Rental4You.Models;
+using Rental4You.ViewModels;
 
 namespace Rental4You.Controllers
 {
@@ -32,38 +33,69 @@ namespace Rental4You.Controllers
         public async Task<IActionResult> Index()
         {
             var user = GetCurrentUser();
+            List<Reservation> reservations;
             // If Employee: only show reservations associated to his/her company
             if (User.IsInRole("Employee") && user.CompanyId != null)
             {
-                var reservations = await _context.Reservations
+                reservations = await _context.Reservations
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
                     .Where(r => r.Vehicle.CompanyId == user.CompanyId)
                     .ToListAsync();
-                return View(reservations);
             }
             // If Client: show his/her own reservations
             else if (User.IsInRole("Client"))
             {
-                var reservations = await _context.Reservations
+                reservations = await _context.Reservations
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
                     .Where(r => r.ClientId == user.Id)
                     .ToListAsync();
-                return View(reservations);
             }
             // Else: show all reservations
             else
             {
-                var reservations = await _context.Reservations
+                reservations = await _context.Reservations
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
                     .ToListAsync();
-                return View(reservations);
             }
+
+            var model = new ReservationsSearch()
+            {
+                SearchResults = reservations,
+                NumberResults = reservations.Count
+            };
+            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Model");
+            ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
+            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "UserName");
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Search(ReservationsSearch search)
+        {
+            List<Reservation> reservations;
+            reservations = await _context.Reservations
+                .Include(r => r.Delivery)
+                .Include(r => r.Pickup)
+                .Include(r => r.Vehicle)
+                .Where(r => r.ClientId == search.ClientId)
+                .Where(r => r.VehicleId == search.VehicleId)
+                .Where(r => r.Vehicle.VehicleCategoryId == search.CategoryId)
+                .ToListAsync();
+
+            search.SearchResults = reservations;
+            search.NumberResults = reservations.Count;
+
+            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Model");
+            ViewData["VehicleCategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
+            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "UserName");
+            return View("Index", search);
         }
 
         // GET: Reservations/Details/5
@@ -92,7 +124,9 @@ namespace Rental4You.Controllers
         {
             ViewData["DeliveryId"] = new SelectList(_context.Deliveries, "Id", "Id");
             ViewData["PickupId"] = new SelectList(_context.Pickups, "Id", "Id");
-            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Id");
+            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Model");
+            ViewData["ReservationStatus"] = new SelectList(Enum.GetValues(typeof(ReservationStatus))
+                .Cast<ReservationStatus>().ToList());
             return View();
         }
 
@@ -112,6 +146,8 @@ namespace Rental4You.Controllers
             ViewData["DeliveryId"] = new SelectList(_context.Deliveries, "Id", "Id", reservation.DeliveryId);
             ViewData["PickupId"] = new SelectList(_context.Pickups, "Id", "Id", reservation.PickupId);
             ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Id", reservation.VehicleId);
+            ViewData["ReservationStatus"] = new SelectList(Enum.GetValues(typeof(ReservationStatus))
+                .Cast<string>().ToList());
             return View(reservation);
         }
 
@@ -169,6 +205,8 @@ namespace Rental4You.Controllers
             ViewData["DeliveryId"] = new SelectList(_context.Deliveries, "Id", "Id", reservation.DeliveryId);
             ViewData["PickupId"] = new SelectList(_context.Pickups, "Id", "Id", reservation.PickupId);
             ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Id", reservation.VehicleId);
+            ViewData["ReservationStatus"] = new SelectList(Enum.GetValues(typeof(ReservationStatus))
+                .Cast<string>().ToList());
             return View(reservation);
         }
 
