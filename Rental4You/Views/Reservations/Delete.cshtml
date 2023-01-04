@@ -1,4 +1,4 @@
-﻿@model Rental4You.Models.Reservation
+﻿@model Rental4You.ViewModels.ReservationVM
 
 @{
     ViewData["Title"] = "Delete";
@@ -27,24 +27,24 @@
             @Html.DisplayNameFor(model => model.Vehicle)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Vehicle.Id)
+            @Html.DisplayFor(model => model.Vehicle.Model)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Pickup)
+            @Html.DisplayNameFor(model => model.PickupDate)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Pickup.Id)
+            @Html.DisplayFor(model => model.PickupDate)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Delivery)
+            @Html.DisplayNameFor(model => model.DeliveryDate)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Delivery.Id)
+            @Html.DisplayFor(model => model.DeliveryDate)
         </dd>
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ReservationId" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

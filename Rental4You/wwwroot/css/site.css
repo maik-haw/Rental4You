@@ -14,26 +14,26 @@ html {
 }
 
 body {
-    margin-bottom: 60px;
-    font: 1rem/1.5 var(--bs-font-sans-serif);
-/*    background-color: var(--bs-yellow);*/
+  margin-bottom: 60px;
+  font: 1rem/1.5 var(--bs-font-sans-serif);
+  /*    background-color: var(--bs-yellow);*/
 }
 
-.searchbar-vehicle {
-    display: flex;
+.searchbar {
+  display: flex;
 }
 
 .form-group {
-    position: relative;
-    margin: 5px 10px 5px 0;
+  position: relative;
+  margin: 5px 10px 5px 0;
 }
 
 .form-control {
-    position: relative;
+  position: relative;
 }
 
 .form-control small {
-    position: absolute;
-    top: -10px;
-    font-size: 75%;
+  position: absolute;
+  top: -10px;
+  font-size: 75%;
 }

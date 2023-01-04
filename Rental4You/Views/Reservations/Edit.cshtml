@@ -1,4 +1,4 @@
-﻿@model Rental4You.Models.Reservation
+﻿@model Rental4You.ViewModels.ReservationVM
 
 @{
     ViewData["Title"] = "Edit";
@@ -12,8 +12,8 @@
     <div class="col-md-4">
         @if(Model.Status == ReservationStatus.open)
         {
-            <a asp-action="Confirm" type="button" class="btn btn-outline-success" asp-route-id="@Model.Id" asp-route-confirm="true">Confirm</a>
-            <a asp-action="Confirm" type="button" class="btn btn-outline-danger" asp-route-id="@Model.Id" asp-route-confirm="false">Reject</a>
+            <a asp-action="Confirm" type="button" class="btn btn-outline-success" asp-route-id="@Model.ReservationId" asp-route-confirm="true">Confirm</a>
+            <a asp-action="Confirm" type="button" class="btn btn-outline-danger" asp-route-id="@Model.ReservationId" asp-route-confirm="false">Reject</a>
         }
         else if (Model.Status == ReservationStatus.confirmed)
         {
@@ -25,28 +25,35 @@
         }
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ReservationId" />
             <input type="hidden" asp-for="CreatedAt" />
             <input type="hidden" asp-for="PickupId" />
             <input type="hidden" asp-for="DeliveryId" />
+            <input type="hidden" asp-for="VehicleId" />
             <div class="form-group">
                 <label asp-for="Vehicle.Model" class="control-label"></label>
                 <input type="text" asp-for="Vehicle.Model" class="form-control" readonly />
             </div>
+            @if (!User.IsInRole("Client")){
+                <div class="form-group">
+                    <label asp-for="Status" class="control-label"></label>
+                    <input type="text" asp-for="Status" class="form-control" readonly />
+                </div>
+            }
             <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input type="text" asp-for="Status" class="form-control" readonly />
+                <label asp-for="PickupDate" class="control-label small"></label>
+                <input type="date" asp-for="PickupDate" class="form-control" />
+                <span asp-validation-for="PickupDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Pickup.PickupDate" class="control-label"></label>
-                <input asp-for="Pickup.PickupDate" class="form-control" readonly />
-                <span asp-validation-for="Pickup.PickupDate" class="text-danger"></span>
+                <label asp-for="DeliveryDate" class="control-label small"></label>
+                <input type ="date" asp-for="DeliveryDate" class="form-control" />
+                <span asp-validation-for="DeliveryDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Delivery.DeliveryDate" class="control-label"></label>
-                <input asp-for="Delivery.DeliveryDate" class="form-control" readonly />
-                <span asp-validation-for="Delivery.DeliveryDate" class="text-danger"></span>
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
+        </form>
             @*<div class="form-group">
                 <label asp-for="CreatedAt" class="control-label"></label>
                 <input asp-for="CreatedAt" class="form-control" />
@@ -72,10 +79,11 @@
                 <select asp-for="DeliveryId" class="form-control" asp-items="ViewBag.DeliveryId"></select>
                 <span asp-validation-for="DeliveryId" class="text-danger"></span>
             </div>*@
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+@*       TODO: Change to TempData (will be rendered in _Layout.cshtml)
+  @if (ViewData.ContainsKey("ErrorMessage") && !string.IsNullOrEmpty(ViewData["ErrorMessage"].ToString()))
+        {
+            <div class="alert alert-danger">@ViewData["ErrorMessage"]</div>
+        } *@
     </div>
 </div>
 

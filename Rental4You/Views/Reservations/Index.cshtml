@@ -1,4 +1,4 @@
-﻿@model Rental4You.ViewModels.ReservationsSearch
+@model Rental4You.ViewModels.ReservationsSearch
 
 @{
     ViewData["Title"] = "Index";
@@ -9,29 +9,9 @@
 @*<p>
     <a asp-action="Create">Create New</a>
 </p>*@
-<style>
-    .searchbar-reservations {
-        display: flex;
-    }
-
-    .form-group {
-        position: relative;
-        margin: 5px 10px 5px 0;
-    }
-
-    .form-control {
-        position: relative;
-    }
-
-        .form-control small {
-            position: absolute;
-            top: -10px;
-            font-size: 75%;
-        }
-</style>
 @if (User.IsInRole("Employee") || User.IsInRole("Manager"))
 {
-    <form class="searchbar-reservations" asp-action="Search">
+    <form class="searchbar" asp-action="Search">
         <div class="form-group">
             <small class="form-text">Pickup Date</small>
             <input type="date" asp-for="PickupDate" class="form-control" />
@@ -69,8 +49,11 @@
     </form>
 }
 
-@if (Model.SearchResults.Count > 0)
+
+@if (Model.SearchResults.Count <= 0)
 {
+    <div class="alert alert-info">There are no reservations.</div>
+} else {
     <table class="table">
         <thead>
             <tr>
@@ -140,16 +123,17 @@
                         }
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    @if(item.Status == ReservationStatus.open){
+                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> <span>|</span>
+                    }
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    @if (item.Status == ReservationStatus.open)
+                    {
                         <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
+                    }
+                </td>
                 </tr>
             }
         </tbody>
     </table>
-}
-else
-{
-    <div> No reservations to display. </div>
 }
