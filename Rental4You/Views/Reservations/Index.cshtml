@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Rental4You.Models.Reservation>
+﻿@model IEnumerable<Rental4You.ViewModels.ReservationVM>
 
 @{
     ViewData["Title"] = "Index";
@@ -7,75 +7,95 @@
 <h1>Reservations</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    @if (!User.IsInRole("Client")){
+        <a asp-action="Create">Create New</a>
+    }
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Vehicle)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Pickup)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Delivery)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Vehicle.Model)
-            </td>
-            <td>
-                @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Pickup == null))
-                {
-                    <a asp-controller="Pickups" asp-action="Create" class="btn btn-warning">Create Pickup</a>
-                }
-                else if (item.Pickup == null)
-                {
-                    @Html.Raw("-")
-                }
-                else
-                {
-                    @Html.DisplayFor(modelItem => item.Pickup.PickupDate)
-                }
-            </td>
-            <td>
-                @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Delivery == null))
-                {
-                    <a asp-controller="Deliveries" asp-action="Create" class="btn btn-warning">Create Delivery</a>
-                }
-                else if (item.Delivery == null)
-                {
-                    @Html.Raw("-")
-                }
-                else
-                {
-                    @Html.DisplayFor(modelItem => item.Delivery.DeliveryDate)
-                }
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+
+@if (Model.Count() <= 0)
+{
+    <div class="alert alert-info">There are no reservations.</div>
+} else {
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.CreatedAt)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Vehicle)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PickupDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DeliveryDate)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedAt)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Vehicle.Model)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PickupDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeliveryDate)
+                </td>
+
+                @*<td>
+                    @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Pickup == null))
+                    {
+                        <a asp-controller="Pickups" asp-action="Create" class="btn btn-warning">Create Pickup</a>
+                    }
+                    else if (item.Pickup == null)
+                    {
+                        @Html.Raw("-")
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.Pickup.PickupDate)
+                    }
+                </td>
+                <td>
+                    @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Delivery == null))
+                    {
+                        <a asp-controller="Deliveries" asp-action="Create" class="btn btn-warning">Create Delivery</a>
+                    }
+                    else if (item.Delivery == null)
+                    {
+                        @Html.Raw("-")
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.Delivery.DeliveryDate)
+                    }
+                </td>*@
+                <td>
+                    @if(item.Status == ReservationStatus.open){
+                            <a asp-action="Edit" asp-route-id="@item.ReservationId">Edit</a> <span>|</span>
+                    }
+                    <a asp-action="Details" asp-route-id="@item.ReservationId">Details</a> |
+                    @if (item.Status == ReservationStatus.open)
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.ReservationId">Delete</a>
+                    }
+                </td>
+            </tr>
+    }
+        </tbody>
+    </table>
 }
-    </tbody>
-</table>

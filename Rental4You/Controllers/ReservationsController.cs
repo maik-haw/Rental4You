@@ -38,38 +38,50 @@ namespace Rental4You.Controllers
         public async Task<IActionResult> Index()
         {
             var user = GetCurrentUser();
+            List<Reservation> reservations = null;
             // If Employee: only show reservations associated to his/her company
-            if (User.IsInRole("Employee") && user.CompanyId != null)
+            if ((User.IsInRole("Employee") || User.IsInRole("Manager")) && user.CompanyId != null)
             {
-                var reservations = await _context.Reservations
+                reservations = await _context.Reservations
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
                     .Where(r => r.Vehicle.CompanyId == user.CompanyId)
                     .ToListAsync();
-                return View(reservations);
             }
             // If Client: show his/her own reservations
             else if (User.IsInRole("Client"))
             {
-                var reservations = await _context.Reservations
+                reservations = await _context.Reservations
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
                     .Where(r => r.ClientId == user.Id)
                     .ToListAsync();
-                return View(reservations);
             }
             // Else: show all reservations
             else
             {
-                var reservations = await _context.Reservations
+                reservations = await _context.Reservations
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
                     .ToListAsync();
-                return View(reservations);
             }
+
+            List<ReservationVM> reservationsVM = new List<ReservationVM>();
+            foreach (var reservation in reservations){
+                ReservationVM reservationVM = new ReservationVM();
+                reservationVM.VehicleId = reservation.VehicleId;
+                reservationVM.Vehicle = reservation.Vehicle;
+                reservationVM.ReservationId = reservation.Id;
+                reservationVM.CreatedAt = reservation.CreatedAt;
+                reservationVM.Status = reservation.Status;
+                reservationVM.PickupDate = reservation.Pickup.PickupDate;
+                reservationVM.DeliveryDate = reservation.Delivery.DeliveryDate;
+                reservationsVM.Add(reservationVM);
+            }
+            return View(reservationsVM);
         }
 
         // GET: Reservations/Details/5
@@ -90,7 +102,14 @@ namespace Rental4You.Controllers
                 return NotFound();
             }
 
-            return View(reservation);
+            ReservationVM reservationVM = new ReservationVM();
+            reservationVM.Vehicle = reservation.Vehicle;
+            reservationVM.CreatedAt = reservation.CreatedAt;
+            reservationVM.Status = reservation.Status;
+            reservationVM.PickupDate = reservation.Pickup.PickupDate;
+            reservationVM.DeliveryDate = reservation.Delivery.DeliveryDate;
+
+            return View(reservationVM);
         }
 
         // GET: Reservations/Create
@@ -107,7 +126,7 @@ namespace Rental4You.Controllers
                 return NotFound();
             }
 
-            ReservationsVM reservationVM = new ReservationsVM();
+            ReservationVM reservationVM = new ReservationVM();
             reservationVM.VehicleId = vehicle.Id;
             reservationVM.Vehicle = vehicle;
 
@@ -119,9 +138,9 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("VehicleId,PickupDate,DeliveryDate")] ReservationsVM reservationVM)
+        public async Task<IActionResult> Create([Bind("VehicleId,PickupDate,DeliveryDate")] ReservationVM reservationVM)
         {
-            ModelState.Remove(nameof(ReservationsVM.Vehicle));
+            ModelState.Remove(nameof(ReservationVM.Vehicle));
             if (ModelState.IsValid)
             {
                 var reservations = _context.Reservations
@@ -150,8 +169,8 @@ namespace Rental4You.Controllers
                     reservation.CreatedAt = DateTime.Now;
                     reservation.Status = ReservationStatus.open;
                     reservation.VehicleId = reservationVM.VehicleId;
-                    reservation.Vehicle = reservationVM.Vehicle;
                     reservation.ClientId = _userManager.GetUserId(User);
+                    reservation.Client = GetCurrentUser();
                     reservation.Pickup = pickup;
                     reservation.PickupId = pickup.Id;
                     reservation.Delivery = delivery;
@@ -196,10 +215,21 @@ namespace Rental4You.Controllers
             {
                 return NotFound();
             }
-            ViewData["DeliveryId"] = new SelectList(_context.Deliveries, "Id", "Id", reservation.DeliveryId);
-            ViewData["PickupId"] = new SelectList(_context.Pickups, "Id", "Id", reservation.PickupId);
-            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Id", reservation.VehicleId);
-            return View(reservation);
+            var pickup = await _context.Pickups.FindAsync(reservation.PickupId);
+            var delivery = await _context.Deliveries.FindAsync(reservation.DeliveryId);
+            if (pickup == null || delivery == null)
+            {
+                return NotFound();
+            }
+
+            ReservationVM reservationVM = new ReservationVM();
+            reservationVM.VehicleId = reservation.VehicleId;
+            reservationVM.ReservationId = reservation.Id;
+            reservationVM.CreatedAt = reservation.CreatedAt;
+            reservationVM.Status = reservation.Status;
+            reservationVM.PickupDate = pickup.PickupDate;
+            reservationVM.DeliveryDate = delivery.DeliveryDate;
+            return View(reservationVM);
         }
 
         // POST: Reservations/Edit/5
@@ -207,9 +237,9 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CreatedAt,Status,VehicleId,PickupId,DeliveryId")] Reservation reservation)
+        public async Task<IActionResult> Edit(int id, [Bind("ReservationId,VehicleId,Status,PickupDate,DeliveryDate")] ReservationVM reservationVM)
         {
-            if (id != reservation.Id)
+            if (id != reservationVM.ReservationId)
             {
                 return NotFound();
             }
@@ -218,12 +248,55 @@ namespace Rental4You.Controllers
             {
                 try
                 {
-                    _context.Update(reservation);
-                    await _context.SaveChangesAsync();
+                    var reservations = _context.Reservations
+                        .Include(x => x.Pickup)
+                        .Include(x => x.Delivery)
+                        .Where(x => x.VehicleId == reservationVM.VehicleId)
+                        .ToList();
+
+                    bool isAvailable = !reservations.Any(r => r.VehicleId == reservationVM.VehicleId &&
+                       (r.Pickup.PickupDate < reservationVM.DeliveryDate &&
+                       r.Pickup.PickupDate >= reservationVM.PickupDate) ||
+                       (r.Delivery.DeliveryDate <= reservationVM.DeliveryDate &&
+                       r.Delivery.DeliveryDate > reservationVM.PickupDate) ||
+                       (r.Pickup.PickupDate <= reservationVM.PickupDate &&
+                       r.Delivery.DeliveryDate >= reservationVM.DeliveryDate));
+
+                    if (isAvailable == true)
+                    {
+
+                        var reservation = await _context.Reservations.FindAsync(reservationVM.ReservationId);
+                        if (reservation != null && reservation.Status == ReservationStatus.open)
+                        {
+                            var pickup = await _context.Pickups.FindAsync(reservation.PickupId);
+                            if (pickup != null)
+                            {
+                                pickup.PickupDate = reservationVM.PickupDate;
+                                _context.Update(pickup);
+                                await _context.SaveChangesAsync();
+                            }
+                            var delivery = await _context.Deliveries.FindAsync(reservation.DeliveryId);
+                            if (delivery != null)
+                            {
+                                delivery.DeliveryDate = reservationVM.DeliveryDate;
+                                _context.Update(delivery);
+                                await _context.SaveChangesAsync();
+                            }
+
+                            reservation.Status = reservationVM.Status;
+                        }
+
+                        _context.Update(reservation);
+                        await _context.SaveChangesAsync();
+                    } else
+                    {
+                        ViewData["ErrorMessage"] = "Selected vehicle isn't available during selected period of time";
+                        return View(reservationVM);
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ReservationExists(reservation.Id))
+                    if (!ReservationExists(reservationVM.ReservationId))
                     {
                         return NotFound();
                     }
@@ -234,10 +307,7 @@ namespace Rental4You.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DeliveryId"] = new SelectList(_context.Deliveries, "Id", "Id", reservation.DeliveryId);
-            ViewData["PickupId"] = new SelectList(_context.Pickups, "Id", "Id", reservation.PickupId);
-            ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Id", reservation.VehicleId);
-            return View(reservation);
+            return View(reservationVM);
         }
 
         // GET: Reservations/Delete/5
@@ -258,7 +328,16 @@ namespace Rental4You.Controllers
                 return NotFound();
             }
 
-            return View(reservation);
+            ReservationVM reservationVM = new ReservationVM();
+            reservationVM.ReservationId = reservation.Id;
+            reservationVM.CreatedAt = reservation.CreatedAt;
+            reservationVM.Status = reservation.Status;
+            reservationVM.VehicleId = reservation.VehicleId;
+            reservationVM.Vehicle = reservation.Vehicle;
+            reservationVM.PickupDate = reservation.Pickup.PickupDate;
+            reservationVM.DeliveryDate = reservation.Delivery.DeliveryDate;
+
+            return View(reservationVM);
         }
 
         // POST: Reservations/Delete/5
@@ -274,6 +353,16 @@ namespace Rental4You.Controllers
             if (reservation != null)
             {
                 _context.Reservations.Remove(reservation);
+            }
+            var pickup = await _context.Pickups.FindAsync(reservation.PickupId);
+            if (pickup != null)
+            {
+                _context.Pickups.Remove(pickup);
+            }
+            var delivery = await _context.Deliveries.FindAsync(reservation.DeliveryId);
+            if (delivery != null)
+            {
+                _context.Deliveries.Remove(delivery);
             }
             
             await _context.SaveChangesAsync();
