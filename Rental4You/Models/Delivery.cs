@@ -11,7 +11,7 @@
         public int ReservationId { get; set; }
         public Reservation? Reservation { get; set; }
         public IEnumerable<DeliveryImage>? DeliveryImages { get; set; }
-        public string EmployeeId { get; set; }
+        public string? EmployeeId { get; set; }
         public ApplicationUser? Employee { get; set; }
     }
 }

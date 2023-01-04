@@ -2,14 +2,23 @@
 
 namespace Rental4You.Models
 {
+    public enum ReservationStatus
+    {
+        open,
+        confirmed,
+        rejected,
+        closed,
+        pickedUp,
+        delivered
+    }
+
     public class Reservation
     {
         public int Id { get; set; }
 
         [Display(Name = "Created at")]
         public DateTime CreatedAt { get; set; }
-        // TODO: Change status for enum
-        public string Status { get; set; }
+        public ReservationStatus Status { get; set; }
         // Foreign Keys:
         public int VehicleId { get; set; }
         public Vehicle? Vehicle { get; set; }

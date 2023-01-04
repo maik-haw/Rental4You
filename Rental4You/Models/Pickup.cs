@@ -10,7 +10,7 @@
         // Foreign Keys:
         public int ReservationId { get; set; }
         public Reservation? Reservation { get; set; }
-        public string EmployeeId { get; set; }
+        public string? EmployeeId { get; set; }
         public ApplicationUser? Employee { get; set; }
     }
 }

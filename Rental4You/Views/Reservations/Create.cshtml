@@ -1,4 +1,4 @@
-﻿@model Rental4You.Models.Reservation
+﻿@model Rental4You.ViewModels.ReservationsVM
 
 @{
     ViewData["Title"] = "Create";
@@ -10,29 +10,25 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
+        @if (ViewData.ContainsKey("ErrorMessage") && !string.IsNullOrEmpty(ViewData["ErrorMessage"].ToString()))
+        {
+            <div class="alert alert-danger">@ViewData["ErrorMessage"]</div>
+        }
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+                <label asp-for="VehicleId" class="control-label small"></label>
+                <input asp-for="VehicleId" class="form-control" readonly/>
             </div>
             <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
+                <label asp-for="PickupDate" class="control-label small"></label>
+                <input type ="date" asp-for="PickupDate" class="form-control" />
+                <span asp-validation-for="PickupDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="VehicleId" class="control-label"></label>
-                <select asp-for="VehicleId" class ="form-control" asp-items="ViewBag.VehicleId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="PickupId" class="control-label"></label>
-                <select asp-for="PickupId" class ="form-control" asp-items="ViewBag.PickupId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="DeliveryId" class="control-label"></label>
-                <select asp-for="DeliveryId" class ="form-control" asp-items="ViewBag.DeliveryId"></select>
+                <label asp-for="DeliveryDate" class="control-label small"></label>
+                <input type="date" asp-for="DeliveryDate" class="form-control" />
+                <span asp-validation-for="DeliveryDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -42,7 +38,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-controller="Home" asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

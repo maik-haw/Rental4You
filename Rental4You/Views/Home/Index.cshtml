@@ -6,47 +6,26 @@
 
 <h1>Search for your favorite vehicle</h1>
 
-<style>
-    .searchbar-vehicle {
-        display: flex;
-    }
-
-    .form-group {
-        position: relative;
-        margin: 5px 10px 5px 0;
-    }
-
-    .form-control {
-        position: relative;
-    }
-
-    .form-control small {
-        position: absolute;
-        top: -10px;
-        font-size: 75%;
-    }
-</style>
-
 <form class="searchbar-vehicle" asp-action="Search">
     <div class="form-group">
-        <small class="form-text">Location</small>
+        <label asp-for="LocationToSearch" class="form-text small"></label>
         <input asp-for="LocationToSearch" type="text" placeholder="e.g.: Coimbra" class="form-control form-control-sm" />
         <span asp-validation-for="LocationToSearch" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <small class="form-text">Pickup Date</small>
+        <label asp-for="PickupDateToSearch" class="form-text small"></label>
         <input type="date" asp-for="PickupDateToSearch" class="form-control" />
         <span asp-validation-for="PickupDateToSearch" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <small class="form-text">Delivery Date</small>
+        <label asp-for="DeliveryDateToSearch" class="form-text small"></label>
         <input type="date" asp-for="DeliveryDateToSearch" class="form-control" />
         <span asp-validation-for="DeliveryDateToSearch" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <small class="form-text">Vehicle Type</small>
-        <select size="1" class="form-control" asp-for="CategoriesToSearch" asp-items="Model.CategoriesToSearch"></select>
-        <span asp-validation-for="CategoriesToSearch" class="text-danger"></span>
+        <label asp-for="SelectedCategories" class="form-text small"></label>
+        <select size="1" class="form-control" asp-for="SelectedCategories" asp-items="Model.CategoriesToSearch" multiple></select>
+        <span asp-validation-for="SelectedCategories" class="text-danger"></span>
     </div>
     <div class="form-group">
         <button type="submit" class="btn btn-primary" style="position: absolute; bottom: 0;">Search</button>
