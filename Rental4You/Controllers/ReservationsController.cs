@@ -204,11 +204,6 @@ namespace Rental4You.Controllers
                     Delivery delivery = new Delivery();
                     delivery.DeliveryDate = reservationVM.DeliveryDate;
 
-                    var user = _context.Users
-                        .Where(u => u.UserName == User.Identity.Name)
-                        .Include(u => u.Company)
-                        .FirstOrDefault();
-
                     Reservation reservation = new Reservation();
                     reservation.CreatedAt = DateTime.Now;
                     reservation.Status = ReservationStatus.open;
@@ -253,6 +248,28 @@ namespace Rental4You.Controllers
             return View(reservationVM);
         }
 
+        public async Task<IActionResult> Confirm(int? id, bool? confirm)
+        {
+            if (id == null || _context.Reservations == null)
+            {
+                return NotFound();
+            }
+
+            if (confirm != null)
+            {
+                var reservation = await _context.Reservations.FindAsync(id);
+                if (reservation == null)
+                {
+                    return NotFound();
+                }
+                reservation.Status = (bool)confirm ? ReservationStatus.confirmed : ReservationStatus.rejected;
+                _context.Update(reservation);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: Reservations/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -261,11 +278,17 @@ namespace Rental4You.Controllers
                 return NotFound();
             }
 
-            var reservation = await _context.Reservations.FindAsync(id);
+            var reservation = await _context.Reservations.Where(r => r.Id == id)
+                .Include(r => r.Vehicle)
+                .Include(r => r.Pickup)
+                .Include(r => r.Delivery)
+                .FirstOrDefaultAsync();
             if (reservation == null)
             {
                 return NotFound();
             }
+            ViewData["Status"] = new SelectList(Enum.GetValues(typeof(ReservationStatus))
+                .Cast<ReservationStatus>().ToList(), reservation.Status);
             ViewData["DeliveryId"] = new SelectList(_context.Deliveries, "Id", "Id", reservation.DeliveryId);
             ViewData["PickupId"] = new SelectList(_context.Pickups, "Id", "Id", reservation.PickupId);
             ViewData["VehicleId"] = new SelectList(_context.Vehicles, "Id", "Model", reservation.VehicleId);

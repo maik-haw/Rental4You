@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace Rental4You.Controllers
     public class DeliveriesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public DeliveriesController(ApplicationDbContext context)
+        public DeliveriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Deliveries
@@ -73,7 +76,9 @@ namespace Rental4You.Controllers
                 return NotFound();
             }
 
-            var delivery = await _context.Deliveries.FindAsync(id);
+            var delivery = await _context.Deliveries.Where(p => p.Id == id)
+                .Include(p => p.Reservation)
+                .FirstOrDefaultAsync();
             if (delivery == null)
             {
                 return NotFound();
@@ -86,7 +91,7 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,DeliveryDate,Kms,Damage,Remarks")] Delivery delivery)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,DeliveryDate,Kms,Damage,Remarks,ReservationId,Reservation")] Delivery delivery)
         {
             if (id != delivery.Id)
             {
@@ -97,7 +102,11 @@ namespace Rental4You.Controllers
             {
                 try
                 {
+                    delivery.EmployeeId = _userManager.GetUserId(User);
+                    var reservation = await _context.Reservations.FindAsync(delivery.ReservationId);
+                    reservation.Status = ReservationStatus.delivered;
                     _context.Update(delivery);
+                    _context.Update(reservation);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

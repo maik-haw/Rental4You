@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace Rental4You.Controllers
     public class PickupsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public PickupsController(ApplicationDbContext context)
+        public PickupsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Pickups
@@ -73,7 +76,9 @@ namespace Rental4You.Controllers
                 return NotFound();
             }
 
-            var pickup = await _context.Pickups.FindAsync(id);
+            var pickup = await _context.Pickups.Where(p => p.Id == id)
+                .Include(p => p.Reservation)
+                .FirstOrDefaultAsync();
             if (pickup == null)
             {
                 return NotFound();
@@ -86,7 +91,7 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,PickupDate,Kms,Damage,Remarks")] Pickup pickup)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,PickupDate,Kms,Damage,Remarks,ReservationId,Reservation")] Pickup pickup)
         {
             if (id != pickup.Id)
             {
@@ -97,7 +102,11 @@ namespace Rental4You.Controllers
             {
                 try
                 {
+                    pickup.EmployeeId = _userManager.GetUserId(User);
+                    var reservation = await _context.Reservations.FindAsync(pickup.ReservationId);
+                    reservation.Status = ReservationStatus.pickedUp;
                     _context.Update(pickup);
+                    _context.Update(reservation);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
