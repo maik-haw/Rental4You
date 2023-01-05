@@ -35,5 +35,6 @@ namespace Rental4You.ViewModels
         [Display(Name = "Delivery Date")]
         [DeliveryDateAttribute("PickupDateToSearch")]
         public DateTime? DeliveryDateToSearch { get; set; }
+        public double? Hours { get; set; }
     }
 }

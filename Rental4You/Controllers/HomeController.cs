@@ -75,6 +75,10 @@ namespace Rental4You.Controllers
                             (r.Pickup.PickupDate <= vehiclesSearch.PickupDateToSearch &&
                             r.Delivery.DeliveryDate >= vehiclesSearch.DeliveryDateToSearch)))
                         .ToList();
+
+                    // Calculate the number of hours between the pickup and delivery dates
+                    TimeSpan duration = (TimeSpan)(vehiclesSearch.DeliveryDateToSearch - vehiclesSearch.PickupDateToSearch);
+                    vehiclesSearch.Hours = duration.TotalHours;
                 }
             }
 
@@ -82,7 +86,7 @@ namespace Rental4You.Controllers
             vehiclesSearch.NumberResults = vehiclesSearch.VehiclesList.Count;
             vehiclesSearch.CategoriesToSearch = new SelectList(_context.VehicleCategories.ToList(), "Id", "Name");
 
-            ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
+            //ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
             return View("Index", vehiclesSearch);
         }
 

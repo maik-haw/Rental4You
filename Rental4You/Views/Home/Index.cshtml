@@ -4,6 +4,11 @@
     ViewData["Title"] = "Home";
 }
 
+@*To render stars used to display companies' ratings*@
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+</head>
+
 <h1>Search for your favorite vehicle</h1>
 
 <form class="searchbar" asp-action="Search">
@@ -51,8 +56,21 @@
                         </div>
                         <div class="card-body">
                             <ul class="list-unstyled mt-3 mb-4">
-                                <li>@vehicle.Description</li>
-                                <li>@vehicle.Cost € / hour</li>
+                                <li>
+                                    @vehicle.Company.Name | @for (int i = 0; i < vehicle.Company.Rating; i++)
+                                    {
+                                        <span class="fa fa-star"></span>
+                                    }
+                                    @for (int i = 0; i < 5 - vehicle.Company.Rating; i++)
+                                    {
+                                        <span class="fa fa-star-o"></span>
+                                    }
+                                </li>
+                                @if(Model.Hours != null){
+                                    <li>Total: @((double)vehicle.Cost * Model.Hours)€</li>
+                                }else{
+                                    <li>@vehicle.Cost € / hour</li>
+                                }
                                 <li>@vehicle.Kms km</li>
                             </ul>
                             <button type="button" class="w-100 btn btn-lg btn-outline-primary">
@@ -147,5 +165,5 @@
 }
 else
 {
-    <div> No vehicles to display. </div>
+    <div class="alert alert-info">No vehicles to display.</div>
 }

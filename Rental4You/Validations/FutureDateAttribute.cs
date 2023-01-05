@@ -47,4 +47,19 @@ namespace Rental4You.Validations
             return ValidationResult.Success;
         }
     }
+
+    public class BeforeCurrentDateAttribute : ValidationAttribute
+    {
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            DateTime birthDate = (DateTime)value;
+
+            if (birthDate > DateTime.Now)
+            {
+                return new ValidationResult(ErrorMessage);
+            }
+
+            return ValidationResult.Success;
+        }
+    }
 }

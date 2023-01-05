@@ -1,20 +1,23 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Rental4You.Validations;
 using System.ComponentModel.DataAnnotations;
 
 namespace Rental4You.Models
 {
     public class ApplicationUser : IdentityUser
     {
+        [Required]
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
-
+        [Required]
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
-
+        [Required]
         [Display(Name = "Birth Date")]
         [PersonalData]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
+        [BeforeCurrentDate(ErrorMessage = "Birth date must be prior to current date")]
         public DateTime BirthDate { get; set; } = DateTime.Parse("01.01.1970");
         public byte[]? UserAvatar { get; set; }
         //public IEnumerable<string>? Roles { get; set; }

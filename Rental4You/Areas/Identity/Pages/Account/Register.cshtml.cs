@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Rental4You.Models;
+using Rental4You.Validations;
 
 namespace Rental4You.Areas.Identity.Pages.Account
 {
@@ -105,8 +106,12 @@ namespace Rental4You.Areas.Identity.Pages.Account
             [Required]
             public string LastName { get; set; }
 
-            [DataType(DataType.Date)]
             [Required]
+            [Display(Name = "Birth Date")]
+            [PersonalData]
+            [DataType(DataType.Date)]
+            [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
+            [BeforeCurrentDate(ErrorMessage = "Birth date must be prior to current date")]
             public DateTime BirthDate { get; set; }
         }
 

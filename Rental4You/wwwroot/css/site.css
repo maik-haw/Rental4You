@@ -37,3 +37,11 @@ body {
   top: -10px;
   font-size: 75%;
 }
+
+.rating .fa-star {
+    color: #FFD700;
+}
+
+.rating .fa-star-o {
+    color: #CCCCCC;
+}
