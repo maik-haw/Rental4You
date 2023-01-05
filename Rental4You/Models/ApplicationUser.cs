@@ -25,6 +25,7 @@ namespace Rental4You.Models
         [Display(Name = "Company")]
         public int? CompanyId { get; set; }
         public Company? Company { get; set; }
+        [Display(Name = "Active")]
         public bool IsActive { get; set; } = true;
         public IEnumerable<Pickup>? Pickups { get; set; }
         public IEnumerable<Delivery>? Deliveries { get; set; }

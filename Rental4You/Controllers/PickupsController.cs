@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Rental4You.Data;
 using Rental4You.Models;
+using Rental4You.ViewModels;
 
 namespace Rental4You.Controllers
 {
@@ -120,7 +121,7 @@ namespace Rental4You.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Reservations");
             }
             return View(pickup);
         }

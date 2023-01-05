@@ -167,6 +167,7 @@ namespace Rental4You.Controllers
         }
 
         // GET: Reservations/Create
+        [Authorize(Roles = "Client")]
         public async Task<IActionResult> Create(int? id)
         {
             if (id == null || _context.Vehicles == null)
@@ -200,6 +201,7 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Client")]
         public async Task<IActionResult> Create([Bind("ClientId,VehicleId,PickupDate,DeliveryDate")] ReservationVM reservationVM)
         {
             ModelState.Remove(nameof(ReservationVM.Vehicle));
@@ -271,6 +273,7 @@ namespace Rental4You.Controllers
             return View(reservationVM);
         }
 
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Confirm(int? id, bool? confirm)
         {
             if (id == null || _context.Reservations == null)
@@ -293,6 +296,7 @@ namespace Rental4You.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Manager")]
         // GET: Reservations/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -342,6 +346,7 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Edit(int id, [Bind("ReservationId,VehicleId,Status,PickupDate,DeliveryDate")] ReservationVM reservationVM)
         {
             if (id != reservationVM.ReservationId)
@@ -417,6 +422,7 @@ namespace Rental4You.Controllers
         }
 
         // GET: Reservations/Delete/5
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Reservations == null)
@@ -449,6 +455,7 @@ namespace Rental4You.Controllers
         // POST: Reservations/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Reservations == null)

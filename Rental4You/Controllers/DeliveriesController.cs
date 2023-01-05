@@ -120,7 +120,7 @@ namespace Rental4You.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Reservations");
             }
             return View(delivery);
         }

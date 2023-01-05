@@ -92,14 +92,29 @@
                         @Html.DisplayFor(modelItem => item.Client.UserName)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Status)
+                        @if (item.Status == ReservationStatus.open)
+                        {
+                            <span class="badge bg-secondary">OPEN</span>
+                        }
+                        else if (item.Status == ReservationStatus.confirmed)
+                        {
+                            <span class="badge bg-primary">CONFIRMED</span>
+                        }
+                        else if (item.Status == ReservationStatus.rejected)
+                        {
+                            <span class="badge bg-danger">REJECTED</span>
+                        }
+                        else if (item.Status == ReservationStatus.pickedUp)
+                        {
+                            <span class="badge bg-warning">PICKED UP</span>
+                        }
+                        else if (item.Status == ReservationStatus.delivered)
+                        {
+                            <span class="badge bg-success">DELIVERED</span>
+                        }
                     </td>
                     <td>
-                        @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Pickup == null))
-                        {
-                            <a asp-controller="Pickups" asp-action="Create" class="btn btn-warning">Create Pickup</a>
-                        }
-                        else if (item.Pickup == null)
+                        @if (item.Pickup == null)
                         {
                             @Html.Raw("-")
                         }
@@ -109,11 +124,7 @@
                         }
                     </td>
                     <td>
-                        @if ((User.IsInRole("Employee") || User.IsInRole("Manager") && item.Delivery == null))
-                        {
-                            <a asp-controller="Deliveries" asp-action="Create" class="btn btn-warning">Create Delivery</a>
-                        }
-                        else if (item.Delivery == null)
+                        @if (item.Delivery == null)
                         {
                             @Html.Raw("-")
                         }
@@ -123,14 +134,17 @@
                         }
                     </td>
                     <td>
-                    @if(item.Status == ReservationStatus.open){
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        @if (item.Status == ReservationStatus.open || 
+                                item.Status == ReservationStatus.confirmed || 
+                                item.Status == ReservationStatus.pickedUp)
+                        {
                             <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> <span>|</span>
-                    }
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    @if (item.Status == ReservationStatus.open)
-                    {
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    }
+                        }
+                        @if (item.Status == ReservationStatus.open)
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        }
                 </td>
                 </tr>
             }
