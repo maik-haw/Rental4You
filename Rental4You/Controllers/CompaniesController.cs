@@ -24,15 +24,26 @@ namespace Rental4You.Controllers
         }
 
         // GET: Companies
-        public async Task<IActionResult> Index(bool? active)
+        public async Task<IActionResult> Index(bool? active, string? sortCompanyRating)
         {
-            if (active == null)
-                return View(await _context.Companies
-                    .ToListAsync());
-            else
-                return View(await _context.Companies
-                    .Where(c => c.IsActive == active)
-                    .ToListAsync());
+            var _companies = await _context.Companies.ToListAsync();
+
+            if (active != null)
+                _companies = _companies.Where(c => c.IsActive == active).ToList();
+
+            if (sortCompanyRating != null)
+            {
+                if (sortCompanyRating == "asc")
+                {
+                    _companies = _companies.OrderBy(c => c.Rating).ToList();
+                }
+                else
+                {
+                    _companies = _companies.OrderByDescending(c => c.Rating).ToList();
+                }
+            }
+
+            return View(_companies);
         }
 
         // GET: Companies/Search

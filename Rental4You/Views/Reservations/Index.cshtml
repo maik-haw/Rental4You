@@ -134,16 +134,16 @@
                         }
                     </td>
                     <td>
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        @if (item.Status == ReservationStatus.open || 
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        @if (!User.IsInRole("Client") && item.Status == ReservationStatus.open || 
                                 item.Status == ReservationStatus.confirmed || 
                                 item.Status == ReservationStatus.pickedUp)
                         {
-                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> <span>|</span>
+                            <span>|</span> <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
                         }
-                        @if (item.Status == ReservationStatus.open)
+                        @if (!User.IsInRole("Client") && item.Status == ReservationStatus.open)
                         {
-                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            <span>|</span> <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                         }
                 </td>
                 </tr>

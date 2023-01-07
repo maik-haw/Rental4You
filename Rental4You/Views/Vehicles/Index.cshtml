@@ -29,6 +29,16 @@
 
 @if (Model.VehiclesList.Count > 0)
 {
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary dropdown-toggle sort-button" data-bs-toggle="dropdown" aria-expanded="false">
+            Order by price
+        </button>
+        <ul class="dropdown-menu">
+            <li><a asp-action="Index" asp-route-sortCost="asc" class="dropdown-item">Ascending</a></li>
+            <li><a asp-action="Index" asp-route-sortCost="desc" class="dropdown-item">Descending</a></li>
+        </ul>
+    </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -105,5 +115,5 @@
 }
 else
 {
-    <div> No vehicles to display. </div>
+    <div class="alert alert-info">No vehicles to display.</div>
 }

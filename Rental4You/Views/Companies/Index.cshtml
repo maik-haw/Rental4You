@@ -16,6 +16,7 @@
         <a asp-action="Index" asp-route-active="true">Active</a>
         <a asp-action="Index" asp-route-active="false">Inactive</a>
     </div>
+
     <div class="col">
         @using (Html.BeginForm("Search", "Companies", FormMethod.Get))
         {
@@ -26,6 +27,18 @@
                 </button>
             </div>
         }
+    </div>
+
+    <div class="text-center">
+         <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle sort-button" data-bs-toggle="dropdown" aria-expanded="false">
+                Order by company's rating
+            </button>
+            <ul class="dropdown-menu">
+                <li><a asp-action="Index" asp-route-sortCompanyRating="asc" class="dropdown-item">Ascending</a></li>
+                <li><a asp-action="Index" asp-route-sortCompanyRating="desc" class="dropdown-item">Descending</a></li>
+            </ul>
+        </div>
     </div>
 </div>
 

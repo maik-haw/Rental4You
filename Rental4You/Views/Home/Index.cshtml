@@ -45,7 +45,26 @@
             <p class="fs-6 text-muted">
                 Here are the available vehicles for your search...
             </p>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle sort-button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Order by price
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a asp-action="Index" asp-route-sortCost="asc" class="dropdown-item">Ascending</a></li>
+                    <li><a asp-action="Index" asp-route-sortCost="desc" class="dropdown-item">Descending</a></li>
+                </ul>
+                <button type="button" class="btn btn-primary dropdown-toggle sort-button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Order by company's rating
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a asp-action="Index" asp-route-sortCompanyRating="asc" class="dropdown-item">Ascending</a></li>
+                    <li><a asp-action="Index" asp-route-sortCompanyRating="desc" class="dropdown-item">Descending</a></li>
+                </ul>
+            </div>
+
         </div>
+
         <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
             @foreach (var vehicle in Model.VehiclesList)
             {

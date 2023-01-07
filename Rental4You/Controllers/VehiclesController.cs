@@ -26,7 +26,7 @@ namespace Rental4You.Controllers
         }
 
         // GET: Vehicles
-        public async Task<IActionResult> Index(bool? active, int? category)
+        public async Task<IActionResult> Index(bool? active, int? category, string? sortCost)
         {
             var user = GetCurrentUser();
             if (user == null)
@@ -36,34 +36,46 @@ namespace Rental4You.Controllers
 
             ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
 
-            List<Vehicle> vehicles;
+            List<Vehicle> _vehicles;
             if (category == null && active != null)
-                vehicles = await _context.Vehicles
+                _vehicles = await _context.Vehicles
                     .Where(v => v.CompanyId == user.CompanyId && v.IsActive == active)
                     .Include(v => v.Company)
                     .Include(v => v.VehicleCategory)
                     .ToListAsync();
             else if (category != null && active == null)
-                vehicles = await _context.Vehicles
+                _vehicles = await _context.Vehicles
                     .Where(v => v.CompanyId == user.CompanyId && v.VehicleCategoryId == category)
                     .Include(v => v.Company)
                     .Include(v => v.VehicleCategory)
                     .ToListAsync();
             else if (category != null && active != null)
-                vehicles = await _context.Vehicles
+                _vehicles = await _context.Vehicles
                     .Where(v => v.CompanyId == user.CompanyId && v.VehicleCategoryId == category && v.IsActive == active)
                     .Include(v => v.Company)
                     .Include(v => v.VehicleCategory)
                     .ToListAsync();
             else
-                vehicles = await _context.Vehicles
+                _vehicles = await _context.Vehicles
                     .Where(v => v.CompanyId == user.CompanyId)
                     .Include(v => v.Company)
                     .Include(v => v.VehicleCategory)
                     .ToListAsync();
 
+            if (sortCost != null)
+            {
+                if (sortCost == "asc")
+                {
+                    _vehicles = _vehicles.OrderBy(vehicle => vehicle.Cost).ToList();
+                }
+                else
+                {
+                    _vehicles = _vehicles.OrderByDescending(vehicle => vehicle.Cost).ToList();
+                }
+            }
+
             var vehiclesSearch = new VehiclesSearch();
-            vehiclesSearch.VehiclesList = vehicles;
+            vehiclesSearch.VehiclesList = _vehicles;
             vehiclesSearch.NumberResults = vehiclesSearch.VehiclesList.Count;
             vehiclesSearch.CategoriesToSearch = new SelectList(_context.VehicleCategories.ToList(), "Id", "Name");
             return View(vehiclesSearch);

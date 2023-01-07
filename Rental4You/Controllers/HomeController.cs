@@ -19,21 +19,44 @@ namespace Rental4You.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string? sortCost, string? sortCompanyRating)
         {
-            var vehicles = _context.Vehicles
+            var _vehicles = _context.Vehicles
                     .Include(v => v.Company)
                     .Include(v => v.VehicleCategory)
                     .ToList();
 
+            if (sortCost != null)
+            {
+                if (sortCost == "asc")
+                {
+                    _vehicles = _vehicles.OrderBy(vehicle => vehicle.Cost).ToList();
+                }
+                else
+                {
+                    _vehicles = _vehicles.OrderByDescending(vehicle => vehicle.Cost).ToList();
+                }
+            }
+
+            if (sortCompanyRating != null)
+            {
+                if (sortCompanyRating == "asc")
+                {
+                    _vehicles = _vehicles.OrderBy(vehicle => vehicle.Company.Rating).ToList();
+                }
+                else
+                {
+                    _vehicles = _vehicles.OrderByDescending(vehicle => vehicle.Company.Rating).ToList();
+                }
+            }
+
             var vehiclesSearch = new VehiclesSearch()
             {
-                VehiclesList = vehicles,
-                NumberResults = vehicles.Count,
+                VehiclesList = _vehicles,
+                NumberResults = _vehicles.Count,
                 CategoriesToSearch = new SelectList(_context.VehicleCategories, "Id", "Name")
             };
 
-            ViewData["CategoryId"] = new SelectList(_context.VehicleCategories, "Id", "Name");
             return View(vehiclesSearch);
         }
 

@@ -45,3 +45,7 @@ body {
 .rating .fa-star-o {
     color: #CCCCCC;
 }
+
+.sort-button{
+    margin:10px;
+}
