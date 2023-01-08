@@ -146,7 +146,6 @@ namespace Rental4You.Controllers
                                     Delivery = delivery
                                 };
                                 _context.Add(deliveryImg);
-                                _context.SaveChangesAsync();
                                 delivery.DeliveryImages.Add(deliveryImg);
                             }
                         }

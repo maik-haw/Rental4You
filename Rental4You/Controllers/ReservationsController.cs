@@ -60,6 +60,7 @@ namespace Rental4You.Controllers
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
+                    .Include(r => r.Vehicle.Company)
                     .Where(r => r.Vehicle.CompanyId == user.CompanyId)
                     .ToListAsync();
             }
@@ -70,6 +71,7 @@ namespace Rental4You.Controllers
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
+                    .Include(r => r.Vehicle.Company)
                     .Where(r => r.ClientId == user.Id)
                     .ToListAsync();
             }
@@ -80,6 +82,7 @@ namespace Rental4You.Controllers
                     .Include(r => r.Delivery)
                     .Include(r => r.Pickup)
                     .Include(r => r.Vehicle)
+                    .Include(r => r.Vehicle.Company)
                     .ToListAsync();
             }
 
