@@ -26,5 +26,6 @@ namespace Rental4You.ViewModels
         [Display(Name = "Delivery Date")]
         [DeliveryDateAttribute("PickupDate")]
         public DateTime DeliveryDate { get; set; }
+        public IEnumerable<DeliveryImage>? DeliveryImages { get; set; }
     }
 }

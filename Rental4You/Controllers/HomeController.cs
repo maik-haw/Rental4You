@@ -101,7 +101,7 @@ namespace Rental4You.Controllers
 
                     // Calculate the number of hours between the pickup and delivery dates
                     TimeSpan duration = (TimeSpan)(vehiclesSearch.DeliveryDateToSearch - vehiclesSearch.PickupDateToSearch);
-                    vehiclesSearch.Hours = duration.TotalHours;
+                    //vehiclesSearch.Hours = duration.TotalHours;
                 }
             }
 

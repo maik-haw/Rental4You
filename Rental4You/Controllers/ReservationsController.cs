@@ -161,6 +161,7 @@ namespace Rental4You.Controllers
 
             var reservation = await _context.Reservations
                 .Include(r => r.Delivery)
+                //.Include(r => r.Delivery.DeliveryImages)
                 .Include(r => r.Pickup)
                 .Include(r => r.Vehicle)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -175,6 +176,11 @@ namespace Rental4You.Controllers
             reservationVM.Status = reservation.Status;
             reservationVM.PickupDate = reservation.Pickup.PickupDate;
             reservationVM.DeliveryDate = reservation.Delivery.DeliveryDate;
+
+            var images = await _context.DeliveryImages
+                .Where(img => img.DeliveryId == reservation.DeliveryId)
+                .ToListAsync();
+            reservationVM.DeliveryImages = images;
 
             return View(reservationVM);
         }

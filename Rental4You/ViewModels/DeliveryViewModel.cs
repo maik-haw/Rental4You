@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Rental4You.Models;
+using System.ComponentModel.DataAnnotations;
+using System.Xml.Linq;
 
-namespace Rental4You.Models
+namespace Rental4You.ViewModels
 {
-    public class Delivery
+    public class DeliveryViewModel
     {
         public int Id { get; set; }
 
@@ -15,7 +17,7 @@ namespace Rental4You.Models
         // Foreign Keys:
         public int ReservationId { get; set; }
         public Reservation? Reservation { get; set; }
-        public List<DeliveryImage>? DeliveryImages { get; set; }
+        public IEnumerable<IFormFile>? DeliveryImages { get; set; }
         public string? EmployeeId { get; set; }
         public ApplicationUser? Employee { get; set; }
     }

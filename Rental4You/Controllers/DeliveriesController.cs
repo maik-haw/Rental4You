@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Rental4You.Data;
 using Rental4You.Models;
+using Rental4You.ViewModels;
 
 namespace Rental4You.Controllers
 {
@@ -83,7 +84,19 @@ namespace Rental4You.Controllers
             {
                 return NotFound();
             }
-            return View(delivery);
+            var deliveryVM = new DeliveryViewModel
+            {
+                Id = delivery.Id,
+                Kms = delivery.Kms,
+                Damage = delivery.Damage,
+                DeliveryDate = delivery.DeliveryDate,
+                Employee = delivery.Employee,
+                EmployeeId = delivery.EmployeeId,
+                Remarks = delivery.Remarks,
+                Reservation = delivery.Reservation,
+                ReservationId = delivery.ReservationId
+            };
+            return View(deliveryVM);
         }
 
         // POST: Deliveries/Edit/5
@@ -91,9 +104,9 @@ namespace Rental4You.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,DeliveryDate,Kms,Damage,Remarks,ReservationId,Reservation")] Delivery delivery)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,DeliveryDate,Kms,Damage,Remarks,ReservationId,Reservation,DeliveryImages")] DeliveryViewModel deliveryVM)
         {
-            if (id != delivery.Id)
+            if (id != deliveryVM.Id)
             {
                 return NotFound();
             }
@@ -102,6 +115,42 @@ namespace Rental4You.Controllers
             {
                 try
                 {
+                    var delivery = new Delivery
+                    {
+                        Id = deliveryVM.Id,
+                        Kms = deliveryVM.Kms,
+                        Damage = deliveryVM.Damage,
+                        DeliveryDate = deliveryVM.DeliveryDate,
+                        Employee = deliveryVM.Employee,
+                        EmployeeId = deliveryVM.EmployeeId,
+                        Remarks = deliveryVM.Remarks,
+                        Reservation = deliveryVM.Reservation,
+                        ReservationId = deliveryVM.ReservationId
+                    };
+                    if (deliveryVM.DeliveryImages != null)
+                    {
+                        foreach(var img in deliveryVM.DeliveryImages)
+                        {
+                            if (img.Length > (1024 * 1024))
+                            {
+                                ModelState.AddModelError("DeliveryImages", "Error: File too big");
+                                return View(deliveryVM);
+                            }
+                            using (var dataStream = new MemoryStream())
+                            {
+                                await img.CopyToAsync(dataStream);
+                                var deliveryImg = new DeliveryImage
+                                {
+                                    ImageData = dataStream.ToArray(),
+                                    DeliveryId = delivery.Id,
+                                    Delivery = delivery
+                                };
+                                _context.Add(deliveryImg);
+                                _context.SaveChangesAsync();
+                                delivery.DeliveryImages.Add(deliveryImg);
+                            }
+                        }
+                    }
                     delivery.EmployeeId = _userManager.GetUserId(User);
                     var reservation = await _context.Reservations.FindAsync(delivery.ReservationId);
                     reservation.Status = ReservationStatus.delivered;
@@ -111,7 +160,7 @@ namespace Rental4You.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DeliveryExists(delivery.Id))
+                    if (!DeliveryExists(deliveryVM.Id))
                     {
                         return NotFound();
                     }
@@ -122,7 +171,7 @@ namespace Rental4You.Controllers
                 }
                 return RedirectToAction("Index", "Reservations");
             }
-            return View(delivery);
+            return View(deliveryVM);
         }
 
         // GET: Deliveries/Delete/5

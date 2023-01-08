@@ -3,7 +3,7 @@
     public class DeliveryImage
     {
         public int Id { get; set; }
-        public string? FilePath { get; set; }
+        public byte[] ImageData { get; set; }
         // Foreign Keys:
         public int DeliveryId { get; set; }
         public Delivery? Delivery { get; set; }
