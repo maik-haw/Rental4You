@@ -43,14 +43,14 @@ PWEB Project 2022/2023 - Web Application for managing car rentals.
 - [x] Deliver a vehicle to customer (pick up by customer)
 - [x] Status of delivery
 - [x] Vehicle kilometres
-- [ ] Vehicle damage (yes/no) -> TODO: change to bool
+- [x] Vehicle damage (yes/no)
 - [x] Remarks
 - [x] Employee who made the delivery
 - [x] Receiving a vehicle from the customer (delivery by customer)
-- [ ] Indicate the condition in which the vehicle is delivered by the customer
+- [x] Indicate the condition in which the vehicle is delivered by the customer
   - [x] Kilometres
-  - [ ] Damage (yes/no) -> TODO: change to bool
-  - [ ] If damaged: photos must be attached to document the damage
+  - [x] Damage (yes/no)
+  - [x] If damaged: photos must be attached to document the damage
   - [x] Employee who received the vehicle
   - [x] Notes
 
