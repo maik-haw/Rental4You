@@ -9,9 +9,9 @@ PWEB Project 2022/2023 - Web Application for managing car rentals.
 **Access (minimum role): Unauthorized Users**
 
 - [x] Search vehicles by location, vehicle type and date (pickup and delivery date)
-- [ ] Display list of available vehicles after search with cost and rental company
-- [ ] Filter results by vehicle category and company
-- [ ] Sort results by lowest/highest price and/or by company rating
+- [x] Display list of available vehicles after search with cost and rental company
+- [x] Filter results by vehicle category and company
+- [x] Sort results by lowest/highest price and/or by company rating
 - [x] Register as a Customer
 
 ### Customer Area
